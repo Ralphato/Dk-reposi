@@ -8,16 +8,26 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.mygdx.game.Player;
 
 public class MyGdxGame extends ApplicationAdapter {
     SpriteBatch batch;
     Player player; // Add player variable
-
+    private AssetManager assetManager;
+    Music BGM;
     @Override
     public void create () {
         batch = new SpriteBatch();
         player = new Player(); // Initialize the player
+        assetManager = new AssetManager();
+        assetManager.load("DKMusic1.mp3", Music.class); // Load music file
+        assetManager.finishLoading(); // Block until all assets are loaded
+        BGM = assetManager.get("DKMusic1.mp3", Music.class); // Retrieve loaded music
+        BGM.play();
+        BGM.setLooping(true);
+
     }
 
     @Override
@@ -43,5 +53,6 @@ public class MyGdxGame extends ApplicationAdapter {
     public void dispose () {
         batch.dispose();
         player.dispose(); // Dispose player assets
+        BGM.dispose();
     }
 }
