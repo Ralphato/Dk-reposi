@@ -21,6 +21,7 @@ public class Player {
     private Texture[] f_animationTexture;
     private float f_x, f_y;
     private float f_scaleX, f_scaleY;
+    private float f_xVelocity;
     private float f_yVelocity;
     private boolean f_jumping;
     private boolean f_isFalling;
@@ -117,6 +118,13 @@ public class Player {
                 f_isFalling = false;
                 f_idleRight = true;
             }
+		if(f_x>=600) {
+	        	f_xVelocity = -4f;
+	        	f_x+=f_xVelocity;
+		}else if (f_x<=0) {
+	        	f_xVelocity = 4f;
+	        	f_x+=f_xVelocity;
+	        }
         }
         f_stateTime += delta;
     }
@@ -141,7 +149,7 @@ public class Player {
 	    		 batch.draw(f_textureFall, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 	    	 }
 	    	 
-	    	 /* implement later, use if (llokingleft/right to detect when to what side the player will face after jumping)
+	    	 /* implement later, use if (lokingleft/right to detect when to what side the player will face after jumping)
 	    	 if(jumping) {
 	    		 batch.draw(textureJump, x, y, texture.getWidth() * scaleX, texture.getHeight() * scaleY);
 	    	 }
