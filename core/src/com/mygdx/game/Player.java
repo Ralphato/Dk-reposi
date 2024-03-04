@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+
 
 /**
  * Represents the player character in the game.
@@ -31,6 +33,7 @@ public class Player {
     private boolean f_idleLeft = false;
     private Animation<TextureRegion> f_runAnimation;
     private float f_stateTime;
+    private Platform f_currentPlatform;
 
     /**
      * Initializes a new instance of the Player class.
@@ -64,6 +67,24 @@ public class Player {
     private void jump() {
         f_yVelocity = 15;
         f_jumping = true;
+    }
+    
+    public void setPosition(float x, float y) {
+    	this.f_x = x;
+    	this.f_y = y;
+    }
+    
+    public float getPositionX() {
+    	return f_x;
+    }
+    
+    public Rectangle getBounds() {
+        // Assuming there are x, y, width, and height fields in the Player class
+        return new Rectangle(f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+    }
+    
+    public void setCurrentPlatform(Platform platform) {
+        this.f_currentPlatform = platform;
     }
 
     /**
@@ -111,13 +132,18 @@ public class Player {
                 f_lookingLeft = false;
             }
 
-            if (f_y <= 100) {
-                f_y = 100;
-                f_yVelocity = 0;
-                f_jumping = false;
-                f_isFalling = false;
-                f_idleRight = true;
+            if (f_jumping && f_currentPlatform != null) {
+                // This ensures the player lands on top of the platform
+                float platformTopY = f_currentPlatform.getBounds().y + f_currentPlatform.getBounds().height;
+                if (f_y <= platformTopY) {
+                    f_y = platformTopY; // Make sure to land on top of the platform
+                    f_yVelocity = 0;
+                    f_jumping = false;
+                    f_isFalling = false;
+                    f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
+                }
             }
+
 		if(f_x>=600) {
 	        	f_xVelocity = -4f;
 	        	f_x+=f_xVelocity;
