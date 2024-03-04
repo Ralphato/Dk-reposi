@@ -34,4 +34,3 @@ public class Platform {
     	return y;
     }
 }
-
