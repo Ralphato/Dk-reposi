@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.Body;
 
 
 /**
@@ -34,7 +35,9 @@ public class Player {
     private Animation<TextureRegion> f_runAnimation;
     private float f_stateTime;
     private Platform f_currentPlatform;
-
+    private boolean checkIfColliding;
+    public Body body; 
+    
     /**
      * Initializes a new instance of the Player class.
      */
@@ -49,6 +52,10 @@ public class Player {
         f_yVelocity = 0;
         f_jumping = false;
         f_lookingLeft = false;
+        
+        
+        
+        
 
         f_animationTexture = new Texture[FRAME_COUNT];
         TextureRegion[] runFrames = new TextureRegion[FRAME_COUNT];
@@ -61,6 +68,12 @@ public class Player {
         f_stateTime = 0f;
     }
 
+    
+    
+    public void stopMovement() {
+        this.body.setLinearVelocity(0f, 0f); // Stop movement
+    }
+    
     /**
      * Causes the player to jump.
      */
@@ -78,13 +91,32 @@ public class Player {
     	return f_x;
     }
     
-    public Rectangle getBounds() {
+    public float getPositionY() {
+    	return f_y;
+    }
+    
+    public Rectangle getBodyBounds() {
+    	float legsHeight = f_texture.getHeight() * f_scaleY * 0.2f; // Height of the legs
         // Assuming there are x, y, width, and height fields in the Player class
-        return new Rectangle(f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+        return new Rectangle(f_x, f_y + legsHeight, f_texture.getWidth() * f_scaleX, (f_texture.getHeight() - 10) * f_scaleY);
+    }
+    
+    public Rectangle getLegsBounds() {
+        // Assuming there are x, y, width, and height fields in the Player class,
+        
+        
+        float legsHeight = f_texture.getHeight() * f_scaleY * 0.2f; // Height of the legs
+
+        
+        return new Rectangle(f_x, f_y, f_texture.getWidth() * f_scaleX, legsHeight); //f_y starts at bottom 
     }
     
     public void setCurrentPlatform(Platform platform) {
         this.f_currentPlatform = platform;
+    }
+    
+    public void checkCollision(boolean platform) {
+        this.checkIfColliding= platform;
     }
 
     /**
@@ -132,17 +164,7 @@ public class Player {
                 f_lookingLeft = false;
             }
 
-            if (f_jumping && f_currentPlatform != null) {
-                // This ensures the player lands on top of the platform
-                float platformTopY = f_currentPlatform.getBounds().y + f_currentPlatform.getBounds().height;
-                if (f_y <= platformTopY) {
-                    f_y = platformTopY; // Make sure to land on top of the platform
-                    f_yVelocity = 0;
-                    f_jumping = false;
-                    f_isFalling = false;
-                    f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
-                }
-            }
+           
 
 		if(f_x>=600) {
 	        	f_xVelocity = -4f;
@@ -152,6 +174,24 @@ public class Player {
 	        	f_x+=f_xVelocity;
 	        }
         }
+        
+        if ((f_jumping|| f_isFalling) && f_currentPlatform != null) {
+        	//System.out.println("Player is on a platform");
+            // This ensures the player lands on top of the platform
+        	
+            float platformTopY = f_currentPlatform.getBounds().y + f_currentPlatform.getBounds().height;
+            if (f_y <= platformTopY) {
+               // f_y = platformTopY; // Make sure to land on top of the platform
+                f_yVelocity = 0;
+                f_jumping = false;
+                f_isFalling = false;
+                f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
+            }
+        }
+        if (!checkIfColliding) {
+        	//System.out.println("Debug: Player is not standing on a platform");
+        }
+        
         f_stateTime += delta;
     }
 
