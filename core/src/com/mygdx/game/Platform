@@ -7,30 +7,39 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Platform {
-    private float x; // Position
-	float y;
+    private float f_x, f_y;
 	
-    private float width, height; // Size
-    private Texture texture;
-    private Rectangle bounds;
+    private float f_width, f_height; // Size
+    private Texture f_texture;
+    private Rectangle f_bounds;
     public Platform(float x, float y, float width, float height, Texture texture) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.texture = texture;
-        this.bounds = new Rectangle(x, y, width,height);
+        this.f_x = x;
+        this.f_y = y;
+        this.f_width = width;
+        this.f_height = height;
+        this.f_texture = texture;
+        this.f_bounds = new Rectangle(f_x + 10, f_y, f_width - 10,f_height);
         
     }
    
     public void render(SpriteBatch batch) {
-    	batch.draw(texture,x, y, width, height);
+    	batch.draw(f_texture,f_x, f_y, f_width, f_height);
     }
     
     public Rectangle getBounds() {
-    	return bounds;
+    	return f_bounds;
     }
+    
+    public Rectangle getUpperBounds() {
+        
+    	float legsHeight = f_texture.getHeight() * 0.9f; // Height of the legs
+        // Assuming there are x, y, width, and height fields in the Player class
+        return new Rectangle(f_x + 10, f_y + legsHeight+ 10, f_width - 10, f_height - 40);
+    }
+    
+   
+    
     public float getPlatY() {
-    	return y;
+    	return f_y;
     }
 }
