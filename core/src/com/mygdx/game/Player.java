@@ -36,6 +36,7 @@ public class Player {
     private float f_stateTime;
     private Platform f_currentPlatform;
     private boolean checkIfColliding;
+    private boolean f_stopMoving;
     public Body body; 
     
     /**
@@ -70,15 +71,13 @@ public class Player {
 
     
     
-    public void stopMovement() {
-        this.body.setLinearVelocity(0f, 0f); // Stop movement
-    }
+
     
     /**
      * Causes the player to jump.
      */
     private void jump() {
-        f_yVelocity = 15;
+        f_yVelocity = 13;
         f_jumping = true;
     }
     
@@ -125,75 +124,78 @@ public class Player {
      * @param delta Time since last game frame.
      */
     public void update(float delta) {
-        if (f_lookingLeft) {
-            f_idleLeft = true;
-            f_lookingLeft = false;
-        } else if (f_lookingRight) {
-            f_idleRight = true;
-            f_lookingRight = false;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            f_x -= 200 * delta;
-            f_lookingLeft = true;
-            f_lookingRight = false;
-            f_idleRight = false;
-            f_idleLeft = false;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            f_x += 200 * delta;
-            f_lookingRight = true;
-            f_lookingLeft = false;
-            f_idleRight = false;
-            f_idleLeft = false;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !f_jumping) {
-            jump();
-        }
-        if (f_jumping) {
-            f_yVelocity -= 0.5f;
-            f_y += f_yVelocity;
-
-            if (f_yVelocity <= 0) {
-                f_isFalling = true;
-                f_idleRight = false;
-                f_idleLeft = false;
-                f_lookingRight = false;
-                f_lookingLeft = false;
-            }
-
-           
-
-		if(f_x>=600) {
-	        	f_xVelocity = -4f;
-	        	f_x+=f_xVelocity;
-		}else if (f_x<=0) {
-	        	f_xVelocity = 4f;
-	        	f_x+=f_xVelocity;
+    	
+	        if (f_lookingLeft) {
+	            f_idleLeft = true;
+	            f_lookingLeft = false;
+	        } else if (f_lookingRight) {
+	            f_idleRight = true;
+	            f_lookingRight = false;
 	        }
-        }
-        
-        if ((f_jumping|| f_isFalling) && f_currentPlatform != null) {
-        	//System.out.println("Player is on a platform");
-            // This ensures the player lands on top of the platform
-        	
-            float platformTopY = f_currentPlatform.getBounds().y + f_currentPlatform.getBounds().height;
-            if (f_y <= platformTopY) {
-               // f_y = platformTopY; // Make sure to land on top of the platform
-                f_yVelocity = 0;
-                f_jumping = false;
-                f_isFalling = false;
-                f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
-            }
-        }
-        if (!checkIfColliding) {
-        	//System.out.println("Debug: Player is not standing on a platform");
-        }
-        
-        f_stateTime += delta;
-    }
+	
+	        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+	            f_x -= 200 * delta;
+	            f_lookingLeft = true;
+	            f_lookingRight = false;
+	            f_idleRight = false;
+	            f_idleLeft = false;
+	        }
+	
+	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+	            f_x += 200 * delta;
+	            f_lookingRight = true;
+	            f_lookingLeft = false;
+	            f_idleRight = false;
+	            f_idleLeft = false;
+	        }
+    	
+    	
+	
+	        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !f_jumping) {
+	            jump();
+	        }
+	        if (f_jumping) {
+	            f_yVelocity -= 0.5f;
+	            f_y += f_yVelocity;
+	
+	            if (f_yVelocity <= 0) {
+	                f_isFalling = true;
+	                f_idleRight = false;
+	                f_idleLeft = false;
+	                f_lookingRight = false;
+	                f_lookingLeft = false;
+	            }
+	
+	           
+	
+			if(f_x>=600) {
+		        	f_xVelocity = -4f;
+		        	f_x+=f_xVelocity;
+			}else if (f_x<=0) {
+		        	f_xVelocity = 4f;
+		        	f_x+=f_xVelocity;
+		        }
+	        }
+	        
+	        if ((f_jumping|| f_isFalling) && f_currentPlatform != null) {
+	        	//System.out.println("Player is on a platform");
+	            // This ensures the player lands on top of the platform
+	        	
+	            float platformTopY = f_currentPlatform.getBounds().y + f_currentPlatform.getBounds().height;
+	            if (f_y <= platformTopY) {
+	               // f_y = platformTopY; // Make sure to land on top of the platform
+	                f_yVelocity = 0;
+	                f_jumping = false;
+	                f_isFalling = false;
+	                f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
+	            }
+	        }
+	        if (!checkIfColliding) {
+	        	//System.out.println("Debug: Player is not standing on a platform");
+	        }
+	        
+	        f_stateTime += delta;
+	    }
 
     /**
      * Draws the player on the screen.
