@@ -32,11 +32,25 @@ public class Platform {
     
     public Rectangle getUpperBounds() {
         
-    	float legsHeight = f_texture.getHeight() * 0.9f; // Height of the legs
+    	float platHeight = f_texture.getHeight() * 0.9f; // Height of the legs
         // Assuming there are x, y, width, and height fields in the Player class
-        return new Rectangle(f_x + 10, f_y + legsHeight+ 10, f_width - 10, f_height - 40);
+        return new Rectangle(f_x + 10, f_y + platHeight+ 10, f_width - 10, f_height - 40);
     }
     
+    public Rectangle getLowerBounds() {
+    	float platHeight = f_texture.getHeight() * 0.1f;
+    	return new Rectangle(f_x + 10, f_y, f_width - 10, platHeight);
+    }
+    
+    public Rectangle getRightBounds() {
+    	float platWidth = f_texture.getWidth() * 0.9f;
+    	return new Rectangle(f_x + platWidth, f_y + 10, f_width - platWidth - 10, f_height - 20);
+    }
+    
+    public Rectangle getLeftBounds() {
+    	float platWidth = f_texture.getWidth() * 0.9f;
+    	return new Rectangle(f_x + 10, f_y + 10, f_width - platWidth - 10, f_height - 20);
+    }
    
     
     public float getPlatY() {
