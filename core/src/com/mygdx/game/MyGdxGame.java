@@ -30,6 +30,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private float PlatformY;
     private Rectangle f_playerBounds, f_legBounds, f_bodyBounds;
     private boolean f_onPlatform, f_contactPlatform;
+    private boolean f_stopMoving;
 
     /**
      * Initializes the game components.
@@ -56,23 +57,41 @@ public class MyGdxGame extends ApplicationAdapter {
      * Initializes platforms with textures.
      */
     private void initializePlatforms() {
-        Texture platformTexture1 = new Texture("PlainDessertPlat.png");
+    	Texture platformTexture1 = new Texture("PlainDessertPlat.png");
         Texture platformTexture2 = new Texture("RustPlat1.png");
         Texture platformTexture3 = new Texture("RustPlat2.png");
-        // Add platforms with varying positions and textures
-        f_platforms.add(new Platform(0, 0, 100, 50, platformTexture3));
-        // More platforms added here..
-        f_platforms.add(new Platform(100, 0, 100, 50,platformTexture2));
-        f_platforms.add(new Platform(200, 0, 100, 50,platformTexture3));
-        f_platforms.add(new Platform(300, 0, 100, 50,platformTexture2));
-        f_platforms.add(new Platform(400, 0, 100, 50,platformTexture1));
-        f_platforms.add(new Platform(500, 0, 100, 50,platformTexture3));
-        f_platforms.add(new Platform(600, 0, 100, 50,platformTexture1));
-        f_platforms.add(new Platform(100, 50, 100, 50,platformTexture3));
-        f_platforms.add(new Platform(200, 100, 100, 50,platformTexture1));
-        f_platforms.add(new Platform(300, 150, 100, 50,platformTexture3));
-        f_platforms.add(new Platform(400, 200, 100, 50,platformTexture2));
-        f_platforms.add(new Platform(500, 250, 100, 50,platformTexture3));}
+
+        // First row of platforms
+        f_platforms.add(new Platform(0, 50, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(100, 50, 100, 50, platformTexture2));
+        f_platforms.add(new Platform(200, 50, 100, 50, platformTexture3));
+        f_platforms.add(new Platform(300, 50, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(400, 50, 100, 50, platformTexture2));
+        f_platforms.add(new Platform(500, 50, 100, 50, platformTexture3));
+        f_platforms.add(new Platform(600, 50, 100, 50, platformTexture1));
+        
+        f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
+
+       
+   
+
+        // Third row of platforms, continuing the ascending pattern
+        f_platforms.add(new Platform(0, 250, 100, 50, platformTexture3));
+        f_platforms.add(new Platform(100, 250, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(200, 250, 100, 50, platformTexture2));
+        f_platforms.add(new Platform(300, 250, 100, 50, platformTexture3));
+        f_platforms.add(new Platform(400, 250, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(500, 250, 100, 50, platformTexture2));
+        f_platforms.add(new Platform(600, 250, 100, 50, platformTexture3));
+
+        // Fourth and highest row of platforms
+        f_platforms.add(new Platform(50, 350, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(150, 350, 100, 50, platformTexture2));
+        f_platforms.add(new Platform(250, 350, 100, 50, platformTexture3));
+        f_platforms.add(new Platform(350, 350, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(450, 350, 100, 50, platformTexture2));
+        f_platforms.add(new Platform(550, 350, 100, 50, platformTexture3));
+    }
 
     /**
      * Updates the game logic and renders the game components.
@@ -99,8 +118,14 @@ public class MyGdxGame extends ApplicationAdapter {
         for (Platform platform : f_platforms) {
             Rectangle Upperbounds = platform.getUpperBounds();
             shapeRenderer.rect(Upperbounds.x, Upperbounds.y, Upperbounds.width, Upperbounds.height);
-            Rectangle bounds = platform.getBounds();
-            shapeRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+            Rectangle LowerBounds = platform.getLowerBounds();
+            shapeRenderer.rect(LowerBounds.x, LowerBounds.y, LowerBounds.width, LowerBounds.height);
+            Rectangle rightBounds = platform.getRightBounds();
+            shapeRenderer.rect(rightBounds.x, rightBounds.y, rightBounds.width, rightBounds.height);
+            Rectangle leftBounds = platform.getLeftBounds();
+            shapeRenderer.rect(leftBounds.x, leftBounds.y, leftBounds.width, leftBounds.height);
+            
+        
         }
      
         // Draw player bounds
@@ -175,15 +200,24 @@ public class MyGdxGame extends ApplicationAdapter {
         
         //Stop player when colliding with platform sides with its body
         for(Platform platform : f_platforms) {
-        	if(f_bodyBounds.overlaps(platform.getBounds())) {
-        			System.out.println("Body is colliding with platform side");
-        			float newX = platform.getBounds().x - 10;
-        			f_player.setPosition(newX - 70, f_player.getPositionY()); //instead of newX put newX - f_player.width
-        			//f_player.stopMovement();
-        			
-        			
+        	
+        	if(f_bodyBounds.overlaps(platform.getLeftBounds())) { // change this to sides left and right
+        			//System.out.println("Body is colliding with platform side");
+        			float newX = platform.getBounds().x - 1; //-1 to not let the collision fixed between both
+        			f_player.setPosition(newX - 70, f_player.getPositionY()); //instead of newX - 70 put newX - f_player.width
         	
           }
+        	if(f_bodyBounds.overlaps(platform.getRightBounds())) { // change this to sides left and right
+    			//System.out.println("Body is colliding with platform side");
+    			float newX = platform.getBounds().x - 1; //-1 to not let the collision fixed between both
+    			f_player.setPosition(newX + 80, f_player.getPositionY()); //instead of newX + 80 put newX + f_player.width
+    	
+        	}
+          
+        	if(f_bodyBounds.overlaps(platform.getLowerBounds())) {
+        		float newY = platform.getBounds().y -1;
+        		f_player.setPosition(f_player.getPositionX(), newY - 84); //80
+        	}
         }
         
     }
