@@ -26,11 +26,14 @@ public class MyGdxGame extends ApplicationAdapter {
     private AssetManager f_assetManager;
     private Music f_BGM;
     private ArrayList<Platform> f_platforms;
+    private ArrayList<Ladder> f_ladders;
     private Platform f_currentPlatform; 
     private float PlatformY;
     private Rectangle f_playerBounds, f_legBounds, f_bodyBounds;
     private boolean f_onPlatform, f_contactPlatform;
     private boolean f_stopMoving;
+    private boolean f_isClimbing;
+    private boolean f_canMove;
 
     /**
      * Initializes the game components.
@@ -47,6 +50,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_BGM.play();
         f_BGM.setLooping(true);
         f_platforms = new ArrayList<>();
+        f_ladders = new ArrayList<>();
         f_playerBounds = f_player.getBodyBounds();
         f_legBounds = f_player.getLegsBounds();
         
@@ -60,6 +64,8 @@ public class MyGdxGame extends ApplicationAdapter {
     	Texture platformTexture1 = new Texture("PlainDessertPlat.png");
         Texture platformTexture2 = new Texture("RustPlat1.png");
         Texture platformTexture3 = new Texture("RustPlat2.png");
+        
+        Texture ladderTexture = new Texture("ladder.png");
 
         // First row of platforms
         f_platforms.add(new Platform(0, 50, 100, 50, platformTexture1));
@@ -71,6 +77,9 @@ public class MyGdxGame extends ApplicationAdapter {
         f_platforms.add(new Platform(600, 50, 100, 50, platformTexture1));
         
         f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
+        
+        f_ladders.add(new Ladder(400,100,200,150,ladderTexture));
+        
 
        
    
@@ -84,13 +93,6 @@ public class MyGdxGame extends ApplicationAdapter {
         f_platforms.add(new Platform(500, 250, 100, 50, platformTexture2));
         f_platforms.add(new Platform(600, 250, 100, 50, platformTexture3));
 
-        // Fourth and highest row of platforms
-        f_platforms.add(new Platform(50, 350, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(150, 350, 100, 50, platformTexture2));
-        f_platforms.add(new Platform(250, 350, 100, 50, platformTexture3));
-        f_platforms.add(new Platform(350, 350, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(450, 350, 100, 50, platformTexture2));
-        f_platforms.add(new Platform(550, 350, 100, 50, platformTexture3));
     }
 
     /**
@@ -107,9 +109,14 @@ public class MyGdxGame extends ApplicationAdapter {
         
         f_batch.begin();
         renderPlatforms();
+        renderLadders();
         f_player.draw(f_batch);
         f_batch.end();
+        checkPlayerLadderCollisions();
+        if(f_isClimbing == false) {
         checkPlayerPlatformCollisions();
+        }
+        
         
         //debugging purposes
         ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -126,6 +133,18 @@ public class MyGdxGame extends ApplicationAdapter {
             shapeRenderer.rect(leftBounds.x, leftBounds.y, leftBounds.width, leftBounds.height);
             
         
+        }
+        
+        //ladder bounds
+        shapeRenderer.setColor(Color.PURPLE);
+        for(Ladder ladder: f_ladders) {
+        	 Rectangle ladderBounds = ladder.getBounds();
+        	 shapeRenderer.rect(ladderBounds.x, ladderBounds.y, ladderBounds.width, ladderBounds.height);
+        	 shapeRenderer.setColor(Color.ORANGE);
+        	 Rectangle ladderUpperBounds = ladder.getMovementBoundsUp();
+        	 shapeRenderer.rect(ladderUpperBounds.x, ladderUpperBounds.y, ladderUpperBounds.width, ladderUpperBounds.height);
+        	 Rectangle ladderLowerBounds = ladder.getMovementBoundsDown();
+        	 shapeRenderer.rect(ladderLowerBounds.x, ladderLowerBounds.y, ladderLowerBounds.width, ladderLowerBounds.height);
         }
      
         // Draw player bounds
@@ -155,11 +174,18 @@ public class MyGdxGame extends ApplicationAdapter {
             platform.render(f_batch);
         }
     }
+    
+    private void renderLadders() {
+    	for(Ladder ladder : f_ladders) {
+    		ladder.render(f_batch);
+    	}
+    }
 
     /**
      * Checks for collisions between the player and platforms.
      */
     private void checkPlayerPlatformCollisions() {
+    	
         boolean foundCollision = false;
         // Start with the assumption that there is no collision
         for (Platform platform : f_platforms) {
@@ -185,6 +211,7 @@ public class MyGdxGame extends ApplicationAdapter {
             f_player.checkCollision(foundCollision);
             float y = f_player.getPositionY();
             if(y >= PlatformY) {
+            
         	y += -5;
         	f_player.setPosition(f_player.getPositionX(), y);
         	}
@@ -219,6 +246,7 @@ public class MyGdxGame extends ApplicationAdapter {
         		f_player.setPosition(f_player.getPositionX(), newY - 84); //80
         	}
         }
+    	
         
     }
 
@@ -232,6 +260,39 @@ public class MyGdxGame extends ApplicationAdapter {
         f_player.setPosition(f_player.getPositionX(), newY);
     }
     
+    private void checkPlayerLadderCollisions() {
+    	for(Ladder ladder: f_ladders) {
+    		if(isWithinLadder(f_player.getBounds(), ladder.getBounds())) {
+    			f_isClimbing = true;
+    			f_player.checkLadder(f_isClimbing);
+    			
+    			if(isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsUp()) || isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsDown())) {
+        			f_canMove = true;
+        			f_player.canMove(f_canMove);
+        			System.out.println("Can move");
+        		}
+        		else {
+        			f_canMove = false;
+        			f_player.canMove(f_canMove);
+        			System.out.println("Cannot move");
+        		}
+    		}
+    		 else {
+    		    f_isClimbing = false;
+    		    f_player.checkLadder(f_isClimbing);
+    		}
+    		
+    		
+    	}
+    	
+    }
+    
+    boolean isWithinLadder(Rectangle player, Rectangle ladder) {
+        return player.x >= ladder.x &&
+               player.x + player.width <= ladder.x + ladder.width &&
+               player.y >= ladder.y &&
+               player.y + player.height <= ladder.y + ladder.height;
+    }
   
     /**
      * Disposes game resources.
@@ -243,3 +304,28 @@ public class MyGdxGame extends ApplicationAdapter {
         f_BGM.dispose();
     }
 }
+
+
+
+
+//SuperPower: floating
+/* if (!foundCollision && (f_isClimbing == false)) {
+
+//f_currentPlatform = null;
+f_player.setCurrentPlatform(null);
+f_player.checkCollision(foundCollision);
+float y = f_player.getPositionY();
+if(y >= PlatformY) {
+y += -5;
+f_player.setPosition(f_player.getPositionX(), y);
+}
+}
+
+if(foundCollision && (f_isClimbing == false)) {
+float y = f_player.getPositionY();
+if(y >= PlatformY) {
+y += -5;
+f_player.setPosition(f_player.getPositionX(), y);
+}
+}
+*/
