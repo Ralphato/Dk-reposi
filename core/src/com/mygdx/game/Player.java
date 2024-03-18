@@ -37,6 +37,8 @@ public class Player {
     private Platform f_currentPlatform;
     private boolean checkIfColliding;
     private boolean f_stopMoving;
+    private boolean f_climbing;
+    private boolean f_moving;
     public Body body; 
     
     /**
@@ -94,6 +96,11 @@ public class Player {
     	return f_y;
     }
     
+    public Rectangle getBounds() {
+    	
+        return new Rectangle(f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+    }
+    
     public Rectangle getBodyBounds() {
     	float legsHeight = f_texture.getHeight() * f_scaleY * 0.2f; // Height of the legs
         // Assuming there are x, y, width, and height fields in the Player class
@@ -117,6 +124,14 @@ public class Player {
     public void checkCollision(boolean platform) {
         this.checkIfColliding= platform;
     }
+    
+    public void checkLadder(boolean climb) {
+    	this.f_climbing = climb;
+    }
+    
+    public void canMove(boolean move) {
+    	this.f_moving = move;
+    }
 
     /**
      * Updates the player's state.
@@ -124,7 +139,18 @@ public class Player {
      * @param delta Time since last game frame.
      */
     public void update(float delta) {
-    	
+    	if (this.f_climbing) {
+    		//System.out.println("Entered if statement");
+            // The player is climbing
+            // Insert logic for climbing here
+            // For example, you might want to move the player up or down a ladder:
+            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                f_y += 8 ; // Climbing up
+            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+                f_y -= 8;  // Climbing d
+            }
+    	}
+    	if(!f_climbing || f_moving) {
 	        if (f_lookingLeft) {
 	            f_idleLeft = true;
 	            f_lookingLeft = false;
@@ -193,6 +219,7 @@ public class Player {
 	        if (!checkIfColliding) {
 	        	//System.out.println("Debug: Player is not standing on a platform");
 	        }
+    	}
 	        
 	        f_stateTime += delta;
 	    }
