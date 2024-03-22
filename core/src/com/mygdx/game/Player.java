@@ -241,6 +241,17 @@ public class Player {
 	            f_climbingNoMove = false;
 	        }
     	
+	        if(f_finishedClimbing) {
+	        	 	//f_lookingRight = false;
+		            //f_lookingLeft = false;
+	        		if(!f_lookingLeft && !f_idleLeft) {
+		            f_idleRight = true;
+	        		}
+		            //f_idleLeft = false;
+		            f_climbingNoMove = false;
+		            f_climbingUp = false;
+		            f_climbingDown = false;
+	        }
     	
 	
 	        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !f_jumping) {
@@ -331,7 +342,9 @@ public class Player {
 	    		 if(f_climbingUp) {
 		    		 TextureRegion currentFrame = f_climbAnimation.getKeyFrame(f_stateTime, true);
 				     batch.draw(currentFrame, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
+				     
 		    	 }
+	    		 
 	    		 if(f_climbingDown) {
 		    		 
 				     batch.draw(f_climbDown, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
@@ -341,9 +354,7 @@ public class Player {
 	    		 
 	    	 }
 	    	 
-	    	 if(f_finishedClimbing) { //instead of this, make mario teleport up when reah=ching the upper ladder boundaries with his head
-    			// batch.draw(f_texture, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
-    		 }
+	    
 	    	
 	    	
 	    	 
