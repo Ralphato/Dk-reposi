@@ -271,6 +271,8 @@ public class MyGdxGame extends ApplicationAdapter {
     		if(isWithinLadder(f_player.getBounds(), ladder.getBounds()) && !f_jumping) { // and if not jumping
     			f_isClimbing = true;
     			f_player.checkLadder(f_isClimbing);
+    			//f_finishedClimbing = false;
+	    		//f_player.finishedClimbing(f_finishedClimbing);
     			 if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
     				 f_climbingUp = true;
     			 }
@@ -310,9 +312,19 @@ public class MyGdxGame extends ApplicationAdapter {
 				System.out.println("Finished climbing");
 	    		float newY = ladder.getBounds().height - 5;
 	    		f_player.setPosition(f_player.getPositionX(), newY);
+	    		//f_finishedClimbing = true;
+	    		//f_player.finishedClimbing(f_finishedClimbing);
 	    		
 	    		
 	    		}
+    		if(isWithinLadder(f_player.getBodyBounds(), ladder.getMovementBoundsUp())) {
+    			f_finishedClimbing = true;
+	    		f_player.finishedClimbing(f_finishedClimbing);
+    		}
+    		else {
+    			f_finishedClimbing = false;
+	    		f_player.finishedClimbing(f_finishedClimbing);
+    		}
     				
     	}
     	
