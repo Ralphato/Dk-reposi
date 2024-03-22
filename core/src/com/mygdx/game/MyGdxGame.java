@@ -34,6 +34,9 @@ public class MyGdxGame extends ApplicationAdapter {
     private boolean f_stopMoving;
     private boolean f_isClimbing;
     private boolean f_canMove;
+    private boolean f_jumping;
+    private boolean f_finishedClimbing;
+    private boolean f_climbingUp;
 
     /**
      * Initializes the game components.
@@ -106,6 +109,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_playerBounds = f_player.getBodyBounds();
         f_legBounds = f_player.getLegsBounds();
         f_bodyBounds = f_player.getBodyBounds();
+        f_jumping = f_player.isJumping();
         
         f_batch.begin();
         renderPlatforms();
@@ -260,21 +264,39 @@ public class MyGdxGame extends ApplicationAdapter {
         f_player.setPosition(f_player.getPositionX(), newY);
     }
     
+    
+    //updated 3/18/2024
     private void checkPlayerLadderCollisions() {
     	for(Ladder ladder: f_ladders) {
-    		if(isWithinLadder(f_player.getBounds(), ladder.getBounds())) {
+    		if(isWithinLadder(f_player.getBounds(), ladder.getBounds()) && !f_jumping) { // and if not jumping
     			f_isClimbing = true;
     			f_player.checkLadder(f_isClimbing);
+    			 if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+    				 f_climbingUp = true;
+    			 }
+    			 else {
+    				 f_climbingUp = false;
+    			 }
     			
     			if(isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsUp()) || isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsDown())) {
         			f_canMove = true;
         			f_player.canMove(f_canMove);
-        			System.out.println("Can move");
+        			f_finishedClimbing = false;
+        			//System.out.println("Can move");
+        		
+        			
+        			if(f_player.getBodyBounds().y < ladder.getMovementBoundsDown().y + 20) {
+        				
+        	    		float newY = ladder.getMovementBoundsDown().y + 5;
+         	    		//System.out.println(f_player.getBodyBounds().y);
+        	    		//System.out.println(ladder.getMovementBoundsDown().y);
+        	    		f_player.setPosition(f_player.getPositionX(), newY);
+        	    		}
         		}
         		else {
         			f_canMove = false;
         			f_player.canMove(f_canMove);
-        			System.out.println("Cannot move");
+//        			/System.out.println("Cannot move");
         		}
     		}
     		 else {
@@ -282,7 +304,16 @@ public class MyGdxGame extends ApplicationAdapter {
     		    f_player.checkLadder(f_isClimbing);
     		}
     		
-    		
+    		if(((f_player.getBodyBounds().y + f_player.getBodyBounds().height)  > ladder.getMovementBoundsUp().y + 10) && isWithinLadderX(f_player.getBounds(), ladder.getMovementBoundsUp()) && f_climbingUp){
+				System.out.println(f_player.getBodyBounds().y + f_player.getBodyBounds().height);
+				System.out.println(ladder.getMovementBoundsUp().y);
+				System.out.println("Finished climbing");
+	    		float newY = ladder.getBounds().height - 5;
+	    		f_player.setPosition(f_player.getPositionX(), newY);
+	    		
+	    		
+	    		}
+    				
     	}
     	
     }
@@ -292,6 +323,11 @@ public class MyGdxGame extends ApplicationAdapter {
                player.x + player.width <= ladder.x + ladder.width &&
                player.y >= ladder.y &&
                player.y + player.height <= ladder.y + ladder.height;
+    }
+    
+    boolean isWithinLadderX(Rectangle player, Rectangle ladder) {
+        return player.x >= ladder.x &&
+               player.x + player.width <= ladder.x + ladder.width;
     }
   
     /**
