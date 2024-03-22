@@ -19,7 +19,7 @@ public class Ladder {
 	        this.f_width = width;
 	        this.f_height = height;
 	        this.f_texture = texture;
-	        this.f_bounds = new Rectangle(f_x + 50, f_y - 10, f_width * scaleWidth ,f_height * scaleHeight);
+	        this.f_bounds = new Rectangle(f_x + 50, f_y - 5, f_width * scaleWidth ,f_height * scaleHeight);
 		
 	}
 	
@@ -32,13 +32,14 @@ public class Ladder {
     }
     
 
-    
+    //updated 3/18/2024
+    //to rescale find a number that divides f_x to equal 50
     public Rectangle getMovementBoundsUp() {
     	return new Rectangle(f_x + 50, f_y + 190, f_width * scaleWidth, f_height * 0.7f);
     }
     
     public Rectangle getMovementBoundsDown() {
-    	 return new Rectangle(f_x + 50, f_y - 20, f_width * scaleWidth, f_height * 0.65f);
+    	 return new Rectangle(f_x + 50, f_y - 5, f_width * scaleWidth, f_height * 0.65f);
     }
 
 }
