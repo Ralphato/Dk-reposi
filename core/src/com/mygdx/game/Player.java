@@ -21,9 +21,14 @@ public class Player {
     private Texture f_texture;
     private Texture f_textureJump;
     private Texture f_textureFall;
+    private Texture f_textureSkid;
+    private Texture f_textureClimb;
+    private Texture f_climbDown;
     private Texture[] f_animationTexture;
+    private Texture[] f_animationTextureClimbing;
     private float f_x, f_y;
     private float f_scaleX, f_scaleY;
+    private float f_scaleXClimb, f_scaleYClimb;
     private float f_xVelocity;
     private float f_yVelocity;
     private boolean f_jumping;
@@ -33,11 +38,16 @@ public class Player {
     private boolean f_idleRight = true;
     private boolean f_idleLeft = false;
     private Animation<TextureRegion> f_runAnimation;
+    private Animation<TextureRegion> f_climbAnimation;
     private float f_stateTime;
     private Platform f_currentPlatform;
     private boolean checkIfColliding;
     private boolean f_stopMoving;
     private boolean f_climbing;
+    private boolean f_climbingNoMove = false;
+    private boolean f_climbingUp = false;
+    private boolean f_climbingDown = false;
+    private boolean f_finishedClimbing = false;
     private boolean f_moving;
     public Body body; 
     
@@ -48,10 +58,15 @@ public class Player {
         f_texture = new Texture("mario sprite.png");
         f_textureJump = new Texture("jump2.png");
         f_textureFall = new Texture("fall.png");
+        f_textureSkid = new Texture("skid.png");
+        f_textureClimb = new Texture("climb1.png");
+        f_climbDown = new Texture("climbDown.png");
         f_x = 100;
         f_y = 100;
         f_scaleX = 1f;
         f_scaleY = 1f;
+        f_scaleXClimb = 1.3f;
+        f_scaleYClimb = 1.3f;
         f_yVelocity = 0;
         f_jumping = false;
         f_lookingLeft = false;
@@ -59,7 +74,7 @@ public class Player {
         
         
         
-
+        //running animation
         f_animationTexture = new Texture[FRAME_COUNT];
         TextureRegion[] runFrames = new TextureRegion[FRAME_COUNT];
         for (int i = 0; i < FRAME_COUNT; i++) {
@@ -68,6 +83,18 @@ public class Player {
             runFrames[i] = new TextureRegion(f_animationTexture[i]);
         }
         f_runAnimation = new Animation<TextureRegion>(0.1f, runFrames);
+        
+        
+        //climbing animation
+        f_animationTextureClimbing = new Texture[FRAME_COUNT]; //array of Texture
+        TextureRegion[] climbFrames = new TextureRegion[FRAME_COUNT]; //array of Texture region
+        for (int i = 0; i < FRAME_COUNT; i++) {
+            String frameName2 = "climb" + (i + 1) + ".png";
+            f_animationTextureClimbing[i] = new Texture(frameName2);
+            climbFrames[i] = new TextureRegion(f_animationTextureClimbing[i]);
+        }
+        f_climbAnimation = new Animation<TextureRegion>(0.4f, climbFrames);
+        
         f_stateTime = 0f;
     }
 
@@ -132,6 +159,16 @@ public class Player {
     public void canMove(boolean move) {
     	this.f_moving = move;
     }
+    
+    public void finishedClimbing(boolean finished) {
+    	this.f_finishedClimbing = finished;
+    }
+    
+    public boolean isJumping() {
+    	return f_jumping;
+    }
+    
+    
 
     /**
      * Updates the player's state.
@@ -139,17 +176,44 @@ public class Player {
      * @param delta Time since last game frame.
      */
     public void update(float delta) {
-    	if (this.f_climbing) {
+    	
+     	if (this.f_climbing) {
     		//System.out.println("Entered if statement");
             // The player is climbing
             // Insert logic for climbing here
             // For example, you might want to move the player up or down a ladder:
+     		
+     		f_climbingNoMove = true;
+     		
+     		f_climbingUp = false;
+            f_climbingDown = false;
+            f_lookingLeft = false;
+            f_lookingRight = false;
+            f_idleRight = false;
+            f_idleLeft = false;
+            
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                f_y += 8 ; // Climbing up
+                f_y += 5 ; // Climbing up
+                f_climbingUp = true; 
+                f_climbingDown = false;
+                f_idleRight = false;
+                f_idleLeft = false;
+                f_climbingNoMove = false;
             } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                f_y -= 8;  // Climbing d
+                f_y -= 5;  // Climbing d
+                f_climbingDown = true;
+                f_climbingUp = false;
+                f_idleRight = false;
+                f_idleLeft = false;
+                f_climbingNoMove = false;
             }
+            
+           
+            
+            //f_idleRight = false;
+            //f_idleLeft = false;
     	}
+    	
     	if(!f_climbing || f_moving) {
 	        if (f_lookingLeft) {
 	            f_idleLeft = true;
@@ -165,6 +229,7 @@ public class Player {
 	            f_lookingRight = false;
 	            f_idleRight = false;
 	            f_idleLeft = false;
+	            f_climbingNoMove = false;
 	        }
 	
 	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
@@ -173,6 +238,7 @@ public class Player {
 	            f_lookingLeft = false;
 	            f_idleRight = false;
 	            f_idleLeft = false;
+	            f_climbingNoMove = false;
 	        }
     	
     	
@@ -216,10 +282,12 @@ public class Player {
 	                f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
 	            }
 	        }
-	        if (!checkIfColliding) {
-	        	//System.out.println("Debug: Player is not standing on a platform");
-	        }
+	        
+	       
+	        
+	        
     	}
+    		
 	        
 	        f_stateTime += delta;
 	    }
@@ -249,6 +317,35 @@ public class Player {
 	    		 batch.draw(textureJump, x, y, texture.getWidth() * scaleX, texture.getHeight() * scaleY);
 	    	 }
 	    	 */
+	    	 if(f_climbing && f_climbingUp) {
+	    		 TextureRegion currentFrame = f_climbAnimation.getKeyFrame(f_stateTime, true);
+			       batch.draw(currentFrame, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
+	    	 }
+	    	 
+	    	 if(f_climbing) {
+	    		 
+	    		 
+	    		 if(f_climbingNoMove) {
+	    		 batch.draw(f_textureClimb, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
+	    		 }
+	    		 if(f_climbingUp) {
+		    		 TextureRegion currentFrame = f_climbAnimation.getKeyFrame(f_stateTime, true);
+				     batch.draw(currentFrame, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
+		    	 }
+	    		 if(f_climbingDown) {
+		    		 
+				     batch.draw(f_climbDown, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
+		    	 }
+	    		 
+	    		 
+	    		 
+	    	 }
+	    	 
+	    	 if(f_finishedClimbing) { //instead of this, make mario teleport up when reah=ching the upper ladder boundaries with his head
+    			// batch.draw(f_texture, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+    		 }
+	    	
+	    	
 	    	 
 	    	 if (f_lookingLeft) {
 	    		//switching the starting point to the right of the asset instead of the left, then drawing from the point to the left direction
@@ -262,8 +359,7 @@ public class Player {
 	    	 else if(f_lookingRight) {
 		        
 		     // Get the current frame of the animation
-		    	TextureRegion currentFrame = f_runAnimation.getKeyFrame(f_stateTime, true);
-		    	
+		    	TextureRegion currentFrame = f_runAnimation.getKeyFrame(f_stateTime, true);	    	
 		    	batch.draw(currentFrame, f_x + f_texture.getWidth() * f_scaleX, f_y, -f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 		    	f_idleRight = true;
 
@@ -279,6 +375,16 @@ public class Player {
 	        }
 	        
 	        for(Texture texture : f_animationTexture) {
+	        	if (texture != null) {
+	        		texture.dispose();
+	        	}
+	        }
+	        
+	        for(TextureRegion frame : f_climbAnimation.getKeyFrames()) {
+	        	frame.getTexture().dispose();
+	        }
+	        
+	        for(Texture texture : f_animationTextureClimbing) {
 	        	if (texture != null) {
 	        		texture.dispose();
 	        	}
