@@ -168,7 +168,7 @@ public class Player {
     }
     
     public boolean isJumping() {
-    	return f_jumping;
+    	return f_jumping ;
     }
     
     
@@ -179,6 +179,7 @@ public class Player {
      * @param delta Time since last game frame.
      */
     public void update(float delta) {
+    	
     	
      	if (this.f_climbing) {
     		//System.out.println("Entered if statement");
@@ -245,6 +246,8 @@ public class Player {
 	        }
     	
 	        if(f_finishedClimbing) {
+	        	
+	        	
 	        	 	//f_lookingRight = false;
 		            //f_lookingLeft = false;
 	        		if(!f_lookingLeft && !f_idleLeft) {
@@ -274,6 +277,7 @@ public class Player {
 	
 	           
 	
+	            /*
 			if(f_x>=600) {
 		        	f_xVelocity = -4f;
 		        	f_x+=f_xVelocity;
@@ -281,7 +285,9 @@ public class Player {
 		        	f_xVelocity = 4f;
 		        	f_x+=f_xVelocity;
 		        }
+		        */
 	        }
+	        
 	        
 	        if ((f_jumping|| f_isFalling) && f_currentPlatform != null) {
 	        	//System.out.println("Player is on a platform");
