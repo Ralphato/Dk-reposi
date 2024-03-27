@@ -107,7 +107,10 @@ public class Player {
      */
     private void jump() {
         f_yVelocity = 13;
+        if(!f_climbing) {
         f_jumping = true;
+        }
+       
     }
     
     public void setPosition(float x, float y) {
