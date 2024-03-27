@@ -11,6 +11,8 @@ public class Ladder {
 	private Rectangle f_bounds;
 	private float scaleWidth = 0.5f;
 	private float scaleHeight = 2.0f;
+	private float scaleFX = 1.125f;
+	private float scaleFY = 2.9f;
 	private float scaleX = 0.5f;
 	
 	public Ladder(float x,float y, float width,float height, Texture texture) {
@@ -35,6 +37,7 @@ public class Ladder {
     //updated 3/18/2024
     //to rescale find a number that divides f_x to equal 50
     public Rectangle getMovementBoundsUp() {
+    	//System.out.println("Ladder f_y is: " + f_y);
     	return new Rectangle(f_x + 50, f_y + 190, f_width * scaleWidth, f_height * 0.7f);
     }
     
