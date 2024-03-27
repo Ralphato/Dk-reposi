@@ -1,3 +1,5 @@
+package com.mygdx.game;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -6,14 +8,13 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 /**
@@ -37,13 +38,29 @@ public class MyGdxGame extends ApplicationAdapter {
     private boolean f_jumping;
     private boolean f_finishedClimbing;
     private boolean f_climbingUp;
+    private OrthographicCamera camera;
+    Ladder ladder1;
+    Ladder ladder2;
+
+    
+    private final int worldWidth = 1250; // Width of the world
+    private final int worldHeight = 1000; // Height of the world
+
 
     /**
      * Initializes the game components.
      */
     @Override
     public void create() {
+    	
+    	
+    	
+       
+        
+        // The rest of your initialization
         f_batch = new SpriteBatch();
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, worldWidth, worldHeight); // Camera covers the entire world
         f_player = new Player();
         f_assetManager = new AssetManager();
         f_assetManager.load("DKMusic1.mp3", Music.class);
@@ -79,12 +96,18 @@ public class MyGdxGame extends ApplicationAdapter {
         f_platforms.add(new Platform(500, 50, 100, 50, platformTexture3));
         f_platforms.add(new Platform(600, 50, 100, 50, platformTexture1));
         
+        f_platforms.add(new Platform(700, 50, 100, 50, platformTexture1));
+        f_platforms.add(new Platform(800, 100, 100, 50, platformTexture2));
+        
         //f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
         
-        f_ladders.add(new Ladder(400,100,200,150,ladderTexture));
-        
-        f_ladders.add(new Ladder(200,100,200,150,ladderTexture));
-        
+     // Define ladder1 and ladder2 as separate variables
+        ladder1 = new Ladder(400, 100, 200, 150, ladderTexture);
+        ladder2 = new Ladder(200, 100, 200, 150, ladderTexture);
+
+        // Then add them to your collection of ladders
+        f_ladders.add(ladder1);
+        f_ladders.add(ladder2);
 
        
    
@@ -105,6 +128,10 @@ public class MyGdxGame extends ApplicationAdapter {
      */
     @Override
     public void render() {
+    	 
+    	camera.update();
+    	f_batch.setProjectionMatrix(camera.combined);
+    	    
         clearScreen();
         f_player.update(Gdx.graphics.getDeltaTime());
         //render bounds
@@ -114,10 +141,13 @@ public class MyGdxGame extends ApplicationAdapter {
         f_jumping = f_player.isJumping();
         
         f_batch.begin();
+        
         renderPlatforms();
         renderLadders();
         f_player.draw(f_batch);
         f_batch.end();
+        
+        
         checkPlayerLadderCollisions();
         if(f_isClimbing == false) {
         checkPlayerPlatformCollisions();
@@ -288,7 +318,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 state.isClimbing = true;
                 f_player.checkLadder(state.isClimbing);
                 anyLadderClimbing = true; // Player is climbing at least one ladder
-                System.out.println("CAN CLIMB 1!");
+                //System.out.println("CAN CLIMB 1!");
                 
                 // Handle input and movement here as before
                 // Note: You may need a more sophisticated system to handle up/down movement across multiple ladders
@@ -338,14 +368,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	    		
 	    		
 	    		}
-    		if(isWithinLadder(f_player.getBodyBounds(), ladder.getMovementBoundsUp())) {
-    			state.finishedClimbing = true;
-	    		f_player.finishedClimbing(state.finishedClimbing);
-    		}
-    		else {
-    			state.finishedClimbing = false;
-	    		f_player.finishedClimbing(state.finishedClimbing);
-    		}
+    		
     		
             
             // Update the ladder state in the map
@@ -360,6 +383,17 @@ public class MyGdxGame extends ApplicationAdapter {
         }
         f_player.checkLadder(f_isClimbing); // Apply the aggregated climbing state
         
+        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder2.getMovementBoundsUp()) ) {
+			f_finishedClimbing = true;
+			System.out.println("Finished climb");
+    		f_player.finishedClimbing(f_finishedClimbing);
+		}
+		else {
+			f_finishedClimbing = false;
+			System.out.println("Finished climb is falso ");
+    		f_player.finishedClimbing(f_finishedClimbing);
+		}
+		
       
     }
     
