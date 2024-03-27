@@ -1,6 +1,6 @@
-package com.mygdx.game;
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;
@@ -79,9 +79,11 @@ public class MyGdxGame extends ApplicationAdapter {
         f_platforms.add(new Platform(500, 50, 100, 50, platformTexture3));
         f_platforms.add(new Platform(600, 50, 100, 50, platformTexture1));
         
-        f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
+        //f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
         
         f_ladders.add(new Ladder(400,100,200,150,ladderTexture));
+        
+        f_ladders.add(new Ladder(200,100,200,150,ladderTexture));
         
 
        
@@ -266,24 +268,40 @@ public class MyGdxGame extends ApplicationAdapter {
     
     
     //updated 3/18/2024
+    class LadderState {
+        boolean isClimbing = false;
+        boolean climbingUp = false;
+        boolean canMove = false;
+        boolean finishedClimbing = false;
+        // Constructor, getters, and setters might be added as needed
+    }
+    Map<Ladder, LadderState> ladderStates = new HashMap<>();
+
+    // Your existing method with some modifications
     private void checkPlayerLadderCollisions() {
-    	for(Ladder ladder: f_ladders) {
-    		if(isWithinLadder(f_player.getBounds(), ladder.getBounds()) && !f_jumping) { // and if not jumping
-    			f_isClimbing = true;
-    			f_player.checkLadder(f_isClimbing);
-    			//f_finishedClimbing = false;
-	    		//f_player.finishedClimbing(f_finishedClimbing);
-    			 if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-    				 f_climbingUp = true;
-    			 }
-    			 else {
-    				 f_climbingUp = false;
-    			 }
-    			
-    			if(isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsUp()) || isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsDown())) {
-        			f_canMove = true;
-        			f_player.canMove(f_canMove);
-        			f_finishedClimbing = false;
+        boolean anyLadderClimbing = false; // Flag to check if the player is climbing any ladder
+
+        for(Ladder ladder : f_ladders) {
+            LadderState state = ladderStates.computeIfAbsent(ladder, k -> new LadderState());
+            
+            if(isWithinLadder(f_player.getBounds(), ladder.getBounds()) && !f_jumping) {
+                state.isClimbing = true;
+                f_player.checkLadder(state.isClimbing);
+                anyLadderClimbing = true; // Player is climbing at least one ladder
+                System.out.println("CAN CLIMB 1!");
+                
+                // Handle input and movement here as before
+                // Note: You may need a more sophisticated system to handle up/down movement across multiple ladders
+                if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+   				 state.climbingUp = true;
+   			 }
+   			 else {
+   				 state.climbingUp = false;
+   			 }
+                if(isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsUp()) || isWithinLadder(f_player.getBounds(), ladder.getMovementBoundsDown())) {
+        			state.canMove = true;
+        			f_player.canMove(state.canMove);
+        			state.finishedClimbing = false;
         			//System.out.println("Can move");
         		
         			
@@ -294,19 +312,22 @@ public class MyGdxGame extends ApplicationAdapter {
         	    		//System.out.println(ladder.getMovementBoundsDown().y);
         	    		f_player.setPosition(f_player.getPositionX(), newY);
         	    		}
-        		}
-        		else {
-        			f_canMove = false;
-        			f_player.canMove(f_canMove);
-//        			/System.out.println("Cannot move");
-        		}
+        		
+                
+            } 
+            else {
+            	state.canMove = false;
+    			f_player.canMove(state.canMove);
+    			//System.out.println("Cannot move");
+            
+         }
+            }
+            else {
+    		    state.isClimbing = false;
+    		    f_player.checkLadder(state.isClimbing);
     		}
-    		 else {
-    		    f_isClimbing = false;
-    		    f_player.checkLadder(f_isClimbing);
-    		}
-    		
-    		if(((f_player.getBodyBounds().y + f_player.getBodyBounds().height)  > ladder.getMovementBoundsUp().y + 10) && isWithinLadderX(f_player.getBounds(), ladder.getMovementBoundsUp()) && f_climbingUp){
+            
+            if(((f_player.getBodyBounds().y + f_player.getBodyBounds().height)  > ladder.getMovementBoundsUp().y + 10) && isWithinLadderX(f_player.getBounds(), ladder.getMovementBoundsUp()) && state.climbingUp){
 				System.out.println(f_player.getBodyBounds().y + f_player.getBodyBounds().height);
 				System.out.println(ladder.getMovementBoundsUp().y);
 				System.out.println("Finished climbing");
@@ -318,17 +339,31 @@ public class MyGdxGame extends ApplicationAdapter {
 	    		
 	    		}
     		if(isWithinLadder(f_player.getBodyBounds(), ladder.getMovementBoundsUp())) {
-    			f_finishedClimbing = true;
-	    		f_player.finishedClimbing(f_finishedClimbing);
+    			state.finishedClimbing = true;
+	    		f_player.finishedClimbing(state.finishedClimbing);
     		}
     		else {
-    			f_finishedClimbing = false;
-	    		f_player.finishedClimbing(f_finishedClimbing);
+    			state.finishedClimbing = false;
+	    		f_player.finishedClimbing(state.finishedClimbing);
     		}
-    				
-    	}
-    	
+    		
+            
+            // Update the ladder state in the map
+            ladderStates.put(ladder, state);
+        }
+
+        // After checking all ladders, update the player's climbing state
+        if (anyLadderClimbing) {
+            f_isClimbing = true;
+        } else {
+            f_isClimbing = false;
+        }
+        f_player.checkLadder(f_isClimbing); // Apply the aggregated climbing state
+        
+      
     }
+    
+    
     
     boolean isWithinLadder(Rectangle player, Rectangle ladder) {
         return player.x >= ladder.x &&
