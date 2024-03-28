@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import org.junit.jupiter.api.Test;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -54,11 +56,12 @@ public class Player {
     /**
      * Initializes a new instance of the Player class.
      */
+    
     public Player() {
         f_texture = new Texture("mario sprite.png");
         f_textureJump = new Texture("jump2.png");
         f_textureFall = new Texture("fall.png");
-        f_textureSkid = new Texture("skid.png");
+
         f_textureClimb = new Texture("climb1.png");
         f_climbDown = new Texture("climbDown.png");
         f_x = 100;
@@ -105,14 +108,15 @@ public class Player {
     /**
      * Causes the player to jump.
      */
+    
     private void jump() {
-        f_yVelocity = 13;
+        f_yVelocity = 14;
         if(!f_climbing) {
         f_jumping = true;
         }
        
     }
-    
+  
     public void setPosition(float x, float y) {
     	this.f_x = x;
     	this.f_y = y;
@@ -274,19 +278,24 @@ public class Player {
 	                f_lookingRight = false;
 	                f_lookingLeft = false;
 	            }
-	
+	        }
 	           
-	
-	            /*
-			if(f_x>=600) {
+	        if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
+	        	f_y+=200;
+	        	f_jumping=true;
+	        }
+	        if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
+	        	f_y-=200;
+	        } 
+			if(f_x>=1200) {
 		        	f_xVelocity = -4f;
 		        	f_x+=f_xVelocity;
 			}else if (f_x<=0) {
 		        	f_xVelocity = 4f;
 		        	f_x+=f_xVelocity;
 		        }
-		        */
-	        }
+		        
+	        
 	        
 	        
 	        if ((f_jumping|| f_isFalling) && f_currentPlatform != null) {
