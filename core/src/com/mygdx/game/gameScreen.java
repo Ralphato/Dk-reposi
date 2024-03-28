@@ -8,7 +8,7 @@ public class gameScreen implements Screen {
     private OrthographicCamera camera;
     private MyGdxGame game; // Reference to the main game class if needed
     private final int worldWidth = 1250; // Width of the world
-    private final int worldHeight = 1000; // Height of the world
+    private final int worldHeight = 1200; // Height of the world
 
     
     public gameScreen(MyGdxGame game) {
