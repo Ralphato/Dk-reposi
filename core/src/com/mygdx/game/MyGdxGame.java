@@ -42,7 +42,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Ladder ladder1;
     Ladder ladder2;
     private gameScreen f_gameScreen;
-
+    private int textNum;
     
    
 
@@ -84,40 +84,84 @@ public class MyGdxGame extends ApplicationAdapter {
         
         Texture ladderTexture = new Texture("ladder.png");
 
-        // First row of platforms
-        f_platforms.add(new Platform(0, 50, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(100, 50, 100, 50, platformTexture2));
-        f_platforms.add(new Platform(200, 50, 100, 50, platformTexture3));
-        f_platforms.add(new Platform(300, 50, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(400, 50, 100, 50, platformTexture2));
-        f_platforms.add(new Platform(500, 50, 100, 50, platformTexture3));
-        f_platforms.add(new Platform(600, 50, 100, 50, platformTexture1));
+      
         
-        f_platforms.add(new Platform(700, 50, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(800, 100, 100, 50, platformTexture2));
-        
+
         //f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
         
      // Define ladder1 and ladder2 as separate variables
         ladder1 = new Ladder(400, 100, 200, 150, ladderTexture);
-        ladder2 = new Ladder(200, 100, 200, 150, ladderTexture);
+        
 
         // Then add them to your collection of ladders
         f_ladders.add(ladder1);
-        f_ladders.add(ladder2);
-
        
-   
 
-        // Third row of platforms, continuing the ascending pattern
-        f_platforms.add(new Platform(0, 250, 100, 50, platformTexture3));
-        f_platforms.add(new Platform(100, 250, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(200, 250, 100, 50, platformTexture2));
-        f_platforms.add(new Platform(300, 250, 100, 50, platformTexture3));
-        f_platforms.add(new Platform(400, 250, 100, 50, platformTexture1));
-        f_platforms.add(new Platform(500, 250, 100, 50, platformTexture2));
-        f_platforms.add(new Platform(600, 250, 100, 50, platformTexture3));
-
+         // First row of platforms
+        for(int i = 0; i<=1200;i+=50) {
+           	textNum=(int)(Math.random()*3)+1;
+           	if(textNum==1) {
+           f_platforms.add(new Platform(i, 50, 50, 50, platformTexture1));
+           	}
+           	if(textNum==2) {
+           f_platforms.add(new Platform(i, 50, 50, 50, platformTexture2));
+           	}
+           	if(textNum==3) {
+           f_platforms.add(new Platform(i, 50, 50, 50, platformTexture3));
+           	}
+           }
+	    //Second row of platforms
+        for(int i = 0; i<=1200;i+=50) {
+           	textNum=(int)(Math.random()*3)+1;
+           	if(textNum==1) {
+           f_platforms.add(new Platform(i, 250, 50, 50, platformTexture1));
+           	}
+           	if(textNum==2) {
+           f_platforms.add(new Platform(i, 250, 50, 50, platformTexture2));
+           	}
+           	if(textNum==3) {
+           f_platforms.add(new Platform(i, 250, 50, 50, platformTexture3));
+           	}
+           }
+	    // Third row of platforms, continuing the ascending pattern
+        for(int i = 0; i<=1200;i+=50) {
+           	textNum=(int)(Math.random()*3)+1;
+           	if(textNum==1) {
+           f_platforms.add(new Platform(i, 450, 50, 50, platformTexture1));
+           	}
+           	if(textNum==2) {
+           f_platforms.add(new Platform(i, 450, 50, 50, platformTexture2));
+           	}
+           	if(textNum==3) {
+           f_platforms.add(new Platform(i, 450, 50, 50, platformTexture3));
+           	}
+           }
+	    //Forth row of platforms
+        for(int i = 0; i<=1200;i+=50) {
+        	textNum=(int)(Math.random()*3)+1;
+           	if(textNum==1) {
+           f_platforms.add(new Platform(i, 650, 50, 50, platformTexture1));
+           	}
+           	if(textNum==2) {
+           f_platforms.add(new Platform(i, 650, 50, 50, platformTexture2));
+           	}
+           	if(textNum==3) {
+           f_platforms.add(new Platform(i, 650, 50, 50, platformTexture3));
+           	}
+           }
+	    //Fifth row of platforms
+        for(int i = 0; i<=1200;i+=50) {
+        	textNum=(int)(Math.random()*3)+1;
+           	if(textNum==1) {
+           f_platforms.add(new Platform(i, 850, 50, 50, platformTexture1));
+           	}
+           	if(textNum==2) {
+           f_platforms.add(new Platform(i, 850, 50, 50, platformTexture2));
+           	}
+           	if(textNum==3) {
+           f_platforms.add(new Platform(i, 850, 50, 50, platformTexture3));
+           	}
+           }
     }
 
     /**
@@ -386,7 +430,7 @@ public class MyGdxGame extends ApplicationAdapter {
         
         
         
-        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder2.getMovementBoundsUp()) ) {
+        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) ) {
 			f_finishedClimbing = true;
 			//System.out.println("Finished climb");
     		f_player.finishedClimbing(f_finishedClimbing);
