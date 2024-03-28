@@ -41,11 +41,10 @@ public class MyGdxGame extends ApplicationAdapter {
     private OrthographicCamera camera;
     Ladder ladder1;
     Ladder ladder2;
+    private gameScreen f_gameScreen;
 
     
-    private final int worldWidth = 1250; // Width of the world
-    private final int worldHeight = 1000; // Height of the world
-
+   
 
     /**
      * Initializes the game components.
@@ -55,12 +54,10 @@ public class MyGdxGame extends ApplicationAdapter {
     	
     	
     	
-       
         
         // The rest of your initialization
         f_batch = new SpriteBatch();
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, worldWidth, worldHeight); // Camera covers the entire world
+        f_gameScreen = new gameScreen(this);
         f_player = new Player();
         f_assetManager = new AssetManager();
         f_assetManager.load("DKMusic1.mp3", Music.class);
@@ -129,9 +126,9 @@ public class MyGdxGame extends ApplicationAdapter {
     @Override
     public void render() {
     	 
-    	camera.update();
-    	f_batch.setProjectionMatrix(camera.combined);
-    	    
+    	
+    	
+    	f_gameScreen.render(Gdx.graphics.getDeltaTime());
         clearScreen();
         f_player.update(Gdx.graphics.getDeltaTime());
         //render bounds
@@ -194,6 +191,10 @@ public class MyGdxGame extends ApplicationAdapter {
 
     }
 
+    public SpriteBatch getSpriteBatch() {
+        return f_batch;
+    }
+    
     /**
      * Clears the screen with a specific color.
      */
@@ -383,16 +384,19 @@ public class MyGdxGame extends ApplicationAdapter {
         }
         f_player.checkLadder(f_isClimbing); // Apply the aggregated climbing state
         
+        
+        
         if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder2.getMovementBoundsUp()) ) {
 			f_finishedClimbing = true;
-			System.out.println("Finished climb");
+			//System.out.println("Finished climb");
     		f_player.finishedClimbing(f_finishedClimbing);
 		}
 		else {
 			f_finishedClimbing = false;
-			System.out.println("Finished climb is falso ");
+			//System.out.println("Finished climb is falso ");
     		f_player.finishedClimbing(f_finishedClimbing);
 		}
+        
 		
       
     }
