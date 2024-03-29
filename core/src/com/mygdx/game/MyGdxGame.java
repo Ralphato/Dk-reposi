@@ -98,68 +98,64 @@ public class MyGdxGame extends ApplicationAdapter {
        
 
          // First row of platforms
-        for(int i = 0; i<=1200;i+=50) {
+        for(int i = 0; i<=1200;i+=150) {
            	textNum=(int)(Math.random()*3)+1;
            	if(textNum==1) {
-           f_platforms.add(new Platform(i, 50, 50, 50, platformTexture1));
+           f_platforms.add(new Platform(i, 0, 150, 50, platformTexture1));
            	}
            	if(textNum==2) {
-           f_platforms.add(new Platform(i, 50, 50, 50, platformTexture2));
+           f_platforms.add(new Platform(i, 0, 150, 50, platformTexture2));
            	}
            	if(textNum==3) {
-           f_platforms.add(new Platform(i, 50, 50, 50, platformTexture3));
+           f_platforms.add(new Platform(i, 0, 150, 50, platformTexture3));
            	}
            }
-	    //Second row of platforms
-        for(int i = 0; i<=1200;i+=50) {
+        for(int i = 0; i<=1200;i+=150) {
            	textNum=(int)(Math.random()*3)+1;
            	if(textNum==1) {
-           f_platforms.add(new Platform(i, 250, 50, 50, platformTexture1));
+           f_platforms.add(new Platform(i, 200, 150, 50, platformTexture1));
            	}
            	if(textNum==2) {
-           f_platforms.add(new Platform(i, 250, 50, 50, platformTexture2));
+           f_platforms.add(new Platform(i, 200, 150, 50, platformTexture2));
            	}
            	if(textNum==3) {
-           f_platforms.add(new Platform(i, 250, 50, 50, platformTexture3));
+           f_platforms.add(new Platform(i, 200, 150, 50, platformTexture3));
            	}
            }
-	    // Third row of platforms, continuing the ascending pattern
-        for(int i = 0; i<=1200;i+=50) {
+        for(int i = 0; i<=1200;i+=150) {
            	textNum=(int)(Math.random()*3)+1;
            	if(textNum==1) {
-           f_platforms.add(new Platform(i, 450, 50, 50, platformTexture1));
+           f_platforms.add(new Platform(i, 400, 150, 50, platformTexture1));
            	}
            	if(textNum==2) {
-           f_platforms.add(new Platform(i, 450, 50, 50, platformTexture2));
+           f_platforms.add(new Platform(i, 400, 150, 50, platformTexture2));
            	}
            	if(textNum==3) {
-           f_platforms.add(new Platform(i, 450, 50, 50, platformTexture3));
+           f_platforms.add(new Platform(i, 400, 150, 50, platformTexture3));
            	}
            }
-	    //Forth row of platforms
-        for(int i = 0; i<=1200;i+=50) {
+        for(int i = 0; i<=1200;i+=150) {
         	textNum=(int)(Math.random()*3)+1;
            	if(textNum==1) {
-           f_platforms.add(new Platform(i, 650, 50, 50, platformTexture1));
+           f_platforms.add(new Platform(i, 600, 150, 50, platformTexture1));
            	}
            	if(textNum==2) {
-           f_platforms.add(new Platform(i, 650, 50, 50, platformTexture2));
+           f_platforms.add(new Platform(i, 600, 150, 50, platformTexture2));
            	}
            	if(textNum==3) {
-           f_platforms.add(new Platform(i, 650, 50, 50, platformTexture3));
+           f_platforms.add(new Platform(i, 600, 150, 50, platformTexture3));
            	}
            }
-	    //Fifth row of platforms
-        for(int i = 0; i<=1200;i+=50) {
+        for(int i = 0; i<=1200;i+=150) {
         	textNum=(int)(Math.random()*3)+1;
            	if(textNum==1) {
-           f_platforms.add(new Platform(i, 850, 50, 50, platformTexture1));
+           f_platforms.add(new Platform(i, 800, 150, 50, platformTexture1));
            	}
            	if(textNum==2) {
-           f_platforms.add(new Platform(i, 850, 50, 50, platformTexture2));
+           f_platforms.add(new Platform(i, 800, 150, 50, platformTexture2));
            	}
            	if(textNum==3) {
-           f_platforms.add(new Platform(i, 850, 50, 50, platformTexture3));
+           f_platforms.add(new Platform(i, 800, 150, 50, platformTexture3));
            	}
            }
     }
