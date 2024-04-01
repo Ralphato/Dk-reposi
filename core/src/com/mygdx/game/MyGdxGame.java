@@ -8,7 +8,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -28,6 +29,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private Music f_BGM;
     private ArrayList<Platform> f_platforms;
     private ArrayList<Ladder> f_ladders;
+    private ArrayList<Barrel> f_barrels;
     private Platform f_currentPlatform; 
     private float PlatformY;
     private Rectangle f_playerBounds, f_legBounds, f_bodyBounds;
@@ -42,7 +44,8 @@ public class MyGdxGame extends ApplicationAdapter {
     Ladder ladder1;
     Ladder ladder2;
     private gameScreen f_gameScreen;
-    private int textNum;
+    
+
     
    
 
@@ -68,6 +71,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_BGM.setLooping(true);
         f_platforms = new ArrayList<>();
         f_ladders = new ArrayList<>();
+        f_barrels = new ArrayList<>();
         f_playerBounds = f_player.getBodyBounds();
         f_legBounds = f_player.getLegsBounds();
         
@@ -83,81 +87,62 @@ public class MyGdxGame extends ApplicationAdapter {
         Texture platformTexture3 = new Texture("RustPlat2.png");
         
         Texture ladderTexture = new Texture("ladder.png");
-
-      
         
+        Texture barrelTexture = new Texture("barrel1.png");
 
+        // First row of platforms
+        for(int i = 0; i <= 1200; i+= 100) {
+        f_platforms.add(new Platform(i, 50, 100, 50, platformTexture1));
+        }
+        
+        // Second row of platforms
+        for(int i = 0; i <= 1050; i+= 100) {
+            f_platforms.add(new Platform(i, 250, 100, 50, platformTexture1));
+            }
+       // third row
+        for(int i = 150; i <= 1200; i+= 100) {
+            f_platforms.add(new Platform(i, 450, 100, 50, platformTexture1));
+            }
+       // fourth row
+        for(int i = 0; i <= 1050; i+= 100) {
+            f_platforms.add(new Platform(i, 650, 100, 50, platformTexture1));
+            }
+        
+     // fifth row
+        for(int i = 150; i <= 1200; i+= 100) {
+            f_platforms.add(new Platform(i, 850, 100, 50, platformTexture1));
+            }
+        // sixth row
+        for(int i = 0; i <= 1050; i+= 100) {
+            f_platforms.add(new Platform(i, 1050, 100, 50, platformTexture1));
+            }
+        
         //f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
         
      // Define ladder1 and ladder2 as separate variables
         ladder1 = new Ladder(400, 100, 200, 150, ladderTexture);
-        
+        ladder2 = new Ladder(200, 100, 200, 150, ladderTexture);
 
+        
+        //adding barrels
+        
+        f_barrels.add(new Barrel(barrelTexture,20,1100,23, 150));
+        //f_barrels.add(new Barrel(barrelTexture,200,1000,23));
+        //f_barrels.add(new Barrel(barrelTexture,30,1100,23));
+        
+        
+        
+        
+        
         // Then add them to your collection of ladders
         f_ladders.add(ladder1);
-       
+        f_ladders.add(ladder2);
 
-         // First row of platforms
-        for(int i = 0; i<=1200;i+=150) {
-           	textNum=(int)(Math.random()*3)+1;
-           	if(textNum==1) {
-           f_platforms.add(new Platform(i, 0, 150, 50, platformTexture1));
-           	}
-           	if(textNum==2) {
-           f_platforms.add(new Platform(i, 0, 150, 50, platformTexture2));
-           	}
-           	if(textNum==3) {
-           f_platforms.add(new Platform(i, 0, 150, 50, platformTexture3));
-           	}
-           }
-        for(int i = 0; i<=1200;i+=150) {
-           	textNum=(int)(Math.random()*3)+1;
-           	if(textNum==1) {
-           f_platforms.add(new Platform(i, 200, 150, 50, platformTexture1));
-           	}
-           	if(textNum==2) {
-           f_platforms.add(new Platform(i, 200, 150, 50, platformTexture2));
-           	}
-           	if(textNum==3) {
-           f_platforms.add(new Platform(i, 200, 150, 50, platformTexture3));
-           	}
-           }
-        for(int i = 0; i<=1200;i+=150) {
-           	textNum=(int)(Math.random()*3)+1;
-           	if(textNum==1) {
-           f_platforms.add(new Platform(i, 400, 150, 50, platformTexture1));
-           	}
-           	if(textNum==2) {
-           f_platforms.add(new Platform(i, 400, 150, 50, platformTexture2));
-           	}
-           	if(textNum==3) {
-           f_platforms.add(new Platform(i, 400, 150, 50, platformTexture3));
-           	}
-           }
-        for(int i = 0; i<=1200;i+=150) {
-        	textNum=(int)(Math.random()*3)+1;
-           	if(textNum==1) {
-           f_platforms.add(new Platform(i, 600, 150, 50, platformTexture1));
-           	}
-           	if(textNum==2) {
-           f_platforms.add(new Platform(i, 600, 150, 50, platformTexture2));
-           	}
-           	if(textNum==3) {
-           f_platforms.add(new Platform(i, 600, 150, 50, platformTexture3));
-           	}
-           }
-        for(int i = 0; i<=1200;i+=150) {
-        	textNum=(int)(Math.random()*3)+1;
-           	if(textNum==1) {
-           f_platforms.add(new Platform(i, 800, 150, 50, platformTexture1));
-           	}
-           	if(textNum==2) {
-           f_platforms.add(new Platform(i, 800, 150, 50, platformTexture2));
-           	}
-           	if(textNum==3) {
-           f_platforms.add(new Platform(i, 800, 150, 50, platformTexture3));
-           	}
-           }
+       
+   
+
+      
+
     }
 
     /**
@@ -181,6 +166,8 @@ public class MyGdxGame extends ApplicationAdapter {
         
         renderPlatforms();
         renderLadders();
+        renderBarrels();
+        updateBarrels();
         f_player.draw(f_batch);
         f_batch.end();
         
@@ -190,10 +177,13 @@ public class MyGdxGame extends ApplicationAdapter {
         checkPlayerPlatformCollisions();
         }
         
+        checkPlayerBarrelCollisions();
+        
         
         //debugging purposes
         ShapeRenderer shapeRenderer = new ShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        
         shapeRenderer.setColor(Color.RED);
         for (Platform platform : f_platforms) {
             Rectangle Upperbounds = platform.getUpperBounds();
@@ -206,6 +196,12 @@ public class MyGdxGame extends ApplicationAdapter {
             shapeRenderer.rect(leftBounds.x, leftBounds.y, leftBounds.width, leftBounds.height);
             
         
+        }
+        
+        shapeRenderer.setColor(Color.PINK);
+        for(Barrel barrel : f_barrels) {
+        	 Circle Barrelbounds = barrel.getBounds();
+             shapeRenderer.circle(Barrelbounds.x, Barrelbounds.y, Barrelbounds.radius);
         }
         
         //ladder bounds
@@ -257,6 +253,18 @@ public class MyGdxGame extends ApplicationAdapter {
     		ladder.render(f_batch);
     	}
     }
+    
+    private void renderBarrels() {
+    	for(Barrel barrel: f_barrels) {
+    		barrel.render(f_batch);
+    	}
+    }
+    
+    private void updateBarrels() {
+    	for(Barrel barrel: f_barrels) {
+    		barrel.update(Gdx.graphics.getDeltaTime());
+    	}
+    }
 
     /**
      * Checks for collisions between the player and platforms.
@@ -282,23 +290,22 @@ public class MyGdxGame extends ApplicationAdapter {
         
         // If after checking all platforms, no collision is found, then reset.
         if (!foundCollision) {
-        	
+        	//System.out.println("No collision");
             //f_currentPlatform = null;
             f_player.setCurrentPlatform(null);
             f_player.checkCollision(foundCollision);
-            float y = f_player.getPositionY();
-            if(y >= PlatformY) {
             
-        	y += -5;
-        	f_player.setPosition(f_player.getPositionX(), y);
-        	}
+            f_player.endOfPlatform(true);
+            
         }
         
         if(foundCollision) {
+        	//System.out.println(" collision");
         	float y = f_player.getPositionY();
             if(y >= PlatformY) {
         	y += -5;
         	f_player.setPosition(f_player.getPositionX(), y);
+        	f_player.endOfPlatform(false);
         }
         }
         
@@ -378,12 +385,13 @@ public class MyGdxGame extends ApplicationAdapter {
         			
         			if(f_player.getBodyBounds().y < ladder.getMovementBoundsDown().y + 20) {
         				
-        	    		float newY = ladder.getMovementBoundsDown().y + 5;
+        	    		float newY = ladder.getMovementBoundsDown().y + 2;
          	    		//System.out.println(f_player.getBodyBounds().y);
         	    		//System.out.println(ladder.getMovementBoundsDown().y);
         	    		f_player.setPosition(f_player.getPositionX(), newY);
+        	    		    		
         	    		}
-        		
+        			
                 
             } 
             else {
@@ -399,10 +407,8 @@ public class MyGdxGame extends ApplicationAdapter {
     		}
             
             if(((f_player.getBodyBounds().y + f_player.getBodyBounds().height)  > ladder.getMovementBoundsUp().y + 10) && isWithinLadderX(f_player.getBounds(), ladder.getMovementBoundsUp()) && state.climbingUp){
-				System.out.println(f_player.getBodyBounds().y + f_player.getBodyBounds().height);
-				System.out.println(ladder.getMovementBoundsUp().y);
-				System.out.println("Finished climbing");
-	    		float newY = ladder.getBounds().height - 5;
+				
+	    		float newY = ladder.getBounds().height - 8;
 	    		f_player.setPosition(f_player.getPositionX(), newY);
 	    		//f_finishedClimbing = true;
 	    		//f_player.finishedClimbing(f_finishedClimbing);
@@ -426,7 +432,8 @@ public class MyGdxGame extends ApplicationAdapter {
         
         
         
-        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) ) {
+        //individual checking of each ladder
+        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder2.getMovementBoundsUp()) ) {
 			f_finishedClimbing = true;
 			//System.out.println("Finished climb");
     		f_player.finishedClimbing(f_finishedClimbing);
@@ -437,6 +444,27 @@ public class MyGdxGame extends ApplicationAdapter {
     		f_player.finishedClimbing(f_finishedClimbing);
 		}
         
+        
+        //ladder 1
+        
+        if(f_player.getBodyBounds().y < ladder1.getMovementBoundsDown().y + 20) {
+    		f_player.stopClimbingDown(true);        	    		
+    		}
+        else {
+		f_player.stopClimbingDown(false);  
+        }
+        
+      
+        
+        
+        //ladder 2
+        
+        if(f_player.getBodyBounds().y < ladder2.getMovementBoundsDown().y + 20) {
+    		f_player.stopClimbingDown(true);        	    		
+    		}
+        else {
+		f_player.stopClimbingDown(false);  
+        }
 		
       
     }
@@ -454,7 +482,44 @@ public class MyGdxGame extends ApplicationAdapter {
         return player.x >= ladder.x &&
                player.x + player.width <= ladder.x + ladder.width;
     }
-  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    int newXuX = 150;
+    private void checkPlayerBarrelCollisions() {
+        for(Barrel barrel : f_barrels) {
+            Circle barrelBounds = barrel.getBounds(); // Get the circular bounds of the barrel
+
+            for (Platform platform : f_platforms) {
+                Rectangle platformBounds = platform.getUpperBounds(); // Assuming this gets the platform's rectangular bounds
+
+                // Use Intersector.overlaps to check if the circle overlaps with the rectangle
+                if (Intersector.overlaps(barrelBounds, platformBounds)) {
+                	//System.out.println("Colliding with platform");
+                	//System.out.println(barrel.getPosition().x);
+                    barrel.checkCollisionWithGround(true);
+                    barrel.jump(100);
+                    
+                    //barrel.moveX(newXuX);
+                }
+            }
+            barrel.checkCollisionWithGround(false);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
     /**
      * Disposes game resources.
      */
