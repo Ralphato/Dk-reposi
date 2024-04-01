@@ -51,7 +51,8 @@ public class Player {
     private boolean f_climbingDown = false;
     private boolean f_finishedClimbing = false;
     private boolean f_moving;
-    public Body body; 
+    private boolean f_stopClimbingDown;
+    private boolean f_stopClimbingUp;
     
     /**
      * Initializes a new instance of the Player class.
@@ -110,7 +111,7 @@ public class Player {
      */
     
     private void jump() {
-        f_yVelocity = 14;
+        f_yVelocity = 9;
         if(!f_climbing) {
         f_jumping = true;
         }
@@ -175,6 +176,17 @@ public class Player {
     	return f_jumping ;
     }
     
+    public boolean stopClimbingDown(boolean lollol) {
+    	return f_stopClimbingDown = lollol;
+    }
+    
+    public boolean stopClimbingUp(boolean lalz) {
+    	return f_stopClimbingUp = lalz;
+    }
+    
+    public void endOfPlatform(boolean trollol) {
+    	f_jumping = trollol;
+    }
     
 
     /**
@@ -200,14 +212,14 @@ public class Player {
             f_idleRight = false;
             f_idleLeft = false;
             
-            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.UP )&& !f_stopClimbingUp) {
                 f_y += 5 ; // Climbing up
                 f_climbingUp = true; 
                 f_climbingDown = false;
                 f_idleRight = false;
                 f_idleLeft = false;
                 f_climbingNoMove = false;
-            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && !f_stopClimbingDown) {
                 f_y -= 5;  // Climbing d
                 f_climbingDown = true;
                 f_climbingUp = false;
@@ -270,6 +282,8 @@ public class Player {
 	        if (f_jumping) {
 	            f_yVelocity -= 0.5f;
 	            f_y += f_yVelocity;
+	            f_isFalling = false;
+	           
 	
 	            if (f_yVelocity <= 0) {
 	                f_isFalling = true;
@@ -287,6 +301,8 @@ public class Player {
 	        if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
 	        	f_y-=200;
 	        } 
+	        
+	        //out of bounds checking
 			if(f_x>=1200) {
 		        	f_xVelocity = -4f;
 		        	f_x+=f_xVelocity;
