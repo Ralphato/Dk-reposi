@@ -1,0 +1,100 @@
+package com.mygdx.game;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+
+public class powerUps extends Player {
+	private int f_usesLeft;
+	private float f_itemX;
+	private float f_itemY;
+	private float f_itemHeight;
+	private float f_itemWidth;
+	private Texture f_texture;
+	private int f_powerNum;
+	private float f_time;
+	private int INITALXPOS;
+	private int INITALYPOS;
+	private Rectangle f_bounds;
+	
+	public powerUps(float xPosition, float yPosition, float height, float width, int powerUpNum) {
+		this.f_itemX=xPosition;
+		this.f_itemY=yPosition;
+		this.f_itemHeight=height;
+		this.f_itemWidth=width;
+		this.f_powerNum=powerUpNum;
+		this.INITALXPOS=(int)xPosition;
+		this.INITALYPOS=(int)yPosition;
+		this.f_bounds = new Rectangle (f_itemX+10,f_itemY,f_itemWidth-10,f_itemHeight);
+	}
+	public Rectangle getBounds() {
+		return f_bounds;
+	}
+	public void texturize() {
+			
+			if(this.f_powerNum==1) {
+				this.f_texture= new Texture("1.png");
+			}else if (this.f_powerNum==2) {
+				this.f_texture = new Texture("2.png");
+			}else if (this.f_powerNum==3) {
+				this.f_texture = new Texture("badlogic.jpg");
+			}
+	}
+	public void collide() {
+		
+			if(this.f_powerNum==1) {
+				teleport();
+				
+			}else if (this.f_powerNum==2) {
+				immunity();
+			}else if (this.f_powerNum==3) {
+				System.out.println("Heheheha\nHeheheha\nHeheheha");
+			
+			}
+		
+		
+	}
+	public void render(SpriteBatch batch) {
+        batch.draw(f_texture, f_itemX , f_itemY ,f_itemHeight,f_itemWidth);
+    }
+	public float getXPosition() {
+		return f_itemX;
+	}
+	public float getYPosition() {
+		return f_itemY;
+	}
+	private void teleport() {
+		f_usesLeft=3;
+	while(f_usesLeft>0) {
+	if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
+		setPosition(getPositionY()+200,getPositionX());
+		f_usesLeft--;    	
+    }
+    if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
+    	setPosition(getPositionY()-200,getPositionX());
+    	f_usesLeft--;
+    } 
+    if(Gdx.input.isKeyJustPressed(Input.Keys.D)&&f_x+200<=1200) {
+    	setPosition(getPositionX()+200,getPositionY());
+    	f_usesLeft--;    	
+    }
+    if(Gdx.input.isKeyJustPressed(Input.Keys.A)&&f_x-200>=0) {
+    	setPosition(getPositionX()-200,getPositionY());
+    	f_usesLeft--;
+    } 
+		}
+		}
+		private void immunity() {
+			//TODO make player health and interactions
+			System.out.println("Can't touch this");
+		}
+		public void changeYPos(int change) {
+			this.f_itemY+=change;
+		}
+
+		public void dispose() {
+			f_texture.dispose();
+		}
+}
