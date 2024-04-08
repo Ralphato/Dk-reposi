@@ -41,6 +41,11 @@ public class Ladder {
     	return new Rectangle(f_x + 50, f_y + 190, f_width * scaleWidth, f_height * 0.7f);
     }
     
+    public Rectangle getUpperBounds() {
+    	//System.out.println("Ladder f_y is: " + f_y);
+    	return new Rectangle(f_x + 50, f_y + 400, f_width * scaleWidth, f_height * 0.1f);
+    }
+    
     public Rectangle getMovementBoundsDown() {
     	 return new Rectangle(f_x + 50, f_y - 5, f_width * scaleWidth, f_height * 0.65f);
     }
