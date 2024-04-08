@@ -1,7 +1,10 @@
 package com.mygdx.game;
 
 import java.util.ArrayList;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -17,6 +20,8 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Input;
+import java.util.Random;
+
 import com.badlogic.gdx.assets.AssetManager;
 /**
  * This class represents the main game application.
@@ -28,8 +33,11 @@ public class MyGdxGame extends ApplicationAdapter {
     private AssetManager f_assetManager;
     private Music f_BGM;
     private ArrayList<Platform> f_platforms;
+    private ArrayList<Platform> f_platformsNoRender;
     private ArrayList<Ladder> f_ladders;
     private ArrayList<Barrel> f_barrels;
+    private ArrayList<Barrel2> f_barrels2;
+    private powerUps f_powerUp;
     private Platform f_currentPlatform; 
     private float PlatformY;
     private Rectangle f_playerBounds, f_legBounds, f_bodyBounds;
@@ -41,13 +49,15 @@ public class MyGdxGame extends ApplicationAdapter {
     private boolean f_finishedClimbing;
     private boolean f_climbingUp;
     private OrthographicCamera camera;
-    Ladder ladder1;
-    Ladder ladder2;
+    Ladder ladder1, ladder2, ladder3, ladder4, ladder5;
     private gameScreen f_gameScreen;
-    
-
-    
-   
+    private float f_speed;
+    private float barrelVelocity = 200;
+    Random random = new Random();
+    Texture barrel2Texture;
+    private final int worldWidth = 1250; // Width of the world
+    private final int worldHeight = 1400; // Height of the world
+    private Texture f_backgroundTexture;
 
     /**
      * Initializes the game components.
@@ -70,10 +80,13 @@ public class MyGdxGame extends ApplicationAdapter {
         f_BGM.play();
         f_BGM.setLooping(true);
         f_platforms = new ArrayList<>();
+        f_platformsNoRender = new ArrayList<>();
         f_ladders = new ArrayList<>();
         f_barrels = new ArrayList<>();
+        f_barrels2 = new ArrayList();
         f_playerBounds = f_player.getBodyBounds();
         f_legBounds = f_player.getLegsBounds();
+        f_backgroundTexture = new Texture("background.png");
         
         initializePlatforms();
     }
@@ -88,7 +101,8 @@ public class MyGdxGame extends ApplicationAdapter {
         
         Texture ladderTexture = new Texture("ladder.png");
         
-        Texture barrelTexture = new Texture("barrel1.png");
+        Texture barrel1Texture = new Texture("barrel1.png");
+        barrel2Texture = new Texture("barrel2.png");
 
         // First row of platforms
         for(int i = 0; i <= 1200; i+= 100) {
@@ -120,23 +134,41 @@ public class MyGdxGame extends ApplicationAdapter {
         //f_platforms.add(new Platform(200, 100, 100, 50, platformTexture1));
         
      // Define ladder1 and ladder2 as separate variables
-        ladder1 = new Ladder(400, 100, 200, 150, ladderTexture);
-        ladder2 = new Ladder(200, 100, 200, 150, ladderTexture);
+        ladder1 = new Ladder(900, 100, 200, 150, ladderTexture);
+        ladder2 = new Ladder(200, 300, 200, 150, ladderTexture);
+        ladder3 = new Ladder(900, 500, 200, 150, ladderTexture);
+        ladder4 = new Ladder(200, 700, 200, 150, ladderTexture);
+        ladder5 = new Ladder(900, 900, 200, 150, ladderTexture);
+        //ladder6 = new Ladder(200, 1100, 200, 150, ladderTexture);
+        
+        
 
         
         //adding barrels
+       
+       //barrel 1 
         
-        f_barrels.add(new Barrel(barrelTexture,20,1100,23, 150));
-        //f_barrels.add(new Barrel(barrelTexture,200,1000,23));
-        //f_barrels.add(new Barrel(barrelTexture,30,1100,23));
+        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+       
         
         
+        //barrel 2 spawning
+        //scheduleBarrelSpawning();
+      
         
-        
+  
+        //f_barrels2.add(new Barrel2(barrel2Texture,40,1095,23,1));    
         
         // Then add them to your collection of ladders
         f_ladders.add(ladder1);
         f_ladders.add(ladder2);
+        f_ladders.add(ladder3);
+        f_ladders.add(ladder4);
+        f_ladders.add(ladder5);
+        
 
        
    
@@ -164,11 +196,13 @@ public class MyGdxGame extends ApplicationAdapter {
         
         f_batch.begin();
         
+        f_batch.draw(f_backgroundTexture, 0, 0, worldWidth, worldHeight);
         renderPlatforms();
         renderLadders();
         renderBarrels();
         updateBarrels();
         f_player.draw(f_batch);
+
         f_batch.end();
         
         
@@ -177,9 +211,12 @@ public class MyGdxGame extends ApplicationAdapter {
         checkPlayerPlatformCollisions();
         }
         
+       
+        
         checkPlayerBarrelCollisions();
+        //checkPowerUpCollisions();
         
-        
+        /*
         //debugging purposes
         ShapeRenderer shapeRenderer = new ShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -203,6 +240,10 @@ public class MyGdxGame extends ApplicationAdapter {
         	 Circle Barrelbounds = barrel.getBounds();
              shapeRenderer.circle(Barrelbounds.x, Barrelbounds.y, Barrelbounds.radius);
         }
+        for(Barrel2 barrel : f_barrels2) {
+       	 Circle Barrelbounds = barrel.getBounds();
+            shapeRenderer.circle(Barrelbounds.x, Barrelbounds.y, Barrelbounds.radius);
+       }
         
         //ladder bounds
         shapeRenderer.setColor(Color.PURPLE);
@@ -224,8 +265,10 @@ public class MyGdxGame extends ApplicationAdapter {
         shapeRenderer.rect(playerBoundsLegs.x, playerBoundsLegs.y, playerBoundsLegs.width, playerBoundsLegs.height);
         
         shapeRenderer.end();
+        */
 
     }
+    
 
     public SpriteBatch getSpriteBatch() {
         return f_batch;
@@ -244,7 +287,9 @@ public class MyGdxGame extends ApplicationAdapter {
      */
     private void renderPlatforms() {
         for (Platform platform : f_platforms) {
+        	if (platform.getPlatY() != 50) { 
             platform.render(f_batch);
+        	}
         }
     }
     
@@ -258,12 +303,48 @@ public class MyGdxGame extends ApplicationAdapter {
     	for(Barrel barrel: f_barrels) {
     		barrel.render(f_batch);
     	}
+    	for(Barrel2 barrel: f_barrels2) {
+    		barrel.render(f_batch);
+    	}
     }
     
     private void updateBarrels() {
-    	for(Barrel barrel: f_barrels) {
-    		barrel.update(Gdx.graphics.getDeltaTime());
-    	}
+    	 // Use an Iterator to safely remove elements while iterating
+        Iterator<Barrel> barrelIterator = f_barrels.iterator();
+        while (barrelIterator.hasNext()) {
+            Barrel barrel = barrelIterator.next();
+            barrel.update(Gdx.graphics.getDeltaTime());
+
+            
+            if (barrel.getPosition().y < 150 && barrel.getPosition().x < 10) {
+                barrelIterator.remove(); // This removes the current barrel from the collection
+            }
+        }
+
+        // Repeat for the second type of barrels if necessary
+        Iterator<Barrel2> barrel2Iterator = f_barrels2.iterator();
+        while (barrel2Iterator.hasNext()) {
+            Barrel2 barrel = barrel2Iterator.next();
+            barrel.update(Gdx.graphics.getDeltaTime());
+
+            // Apply any specific condition for Barrel2
+            if (barrel.getPosition().y < 100 && barrel.getPosition().x < 5) {
+                barrel2Iterator.remove();
+            }
+        }
+    }
+    
+    public void scheduleBarrelSpawning() {
+        Timer.schedule(new Task(){
+            @Override
+            public void run() {
+                // Randomize the chance for each spawn
+                int chance = random.nextInt(5) + 1;
+                // Spawn barrels with varying positions based on chance
+                f_barrels2.add(new Barrel2(barrel2Texture,40,1095,23,chance));    
+                 
+            }
+        }, 0, 5, 20); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
     }
 
     /**
@@ -272,8 +353,13 @@ public class MyGdxGame extends ApplicationAdapter {
     private void checkPlayerPlatformCollisions() {
     	
         boolean foundCollision = false;
+        
+        boolean stopsClimb = false;
+        
+
         // Start with the assumption that there is no collision
         for (Platform platform : f_platforms) {
+        	
             if (f_legBounds.overlaps(platform.getUpperBounds())) {
             	//System.out.println("Collision detected");
                 f_currentPlatform = platform;
@@ -282,11 +368,15 @@ public class MyGdxGame extends ApplicationAdapter {
                 f_player.checkCollision(foundCollision);
                 resolvePlayerPlatformCollision(platform);
                 foundCollision = true;
+                stopsClimb = true;
                 break; // This stops checking more platforms after finding the first collision
             }
-        }
-        
-        
+            else {
+            	stopsClimb = false;
+            }
+        }	
+        		
+      
         
         // If after checking all platforms, no collision is found, then reset.
         if (!foundCollision) {
@@ -333,6 +423,8 @@ public class MyGdxGame extends ApplicationAdapter {
     	
         
     }
+    
+
 
     /**
      * Resolves collisions between the player and a platform.
@@ -351,6 +443,7 @@ public class MyGdxGame extends ApplicationAdapter {
         boolean climbingUp = false;
         boolean canMove = false;
         boolean finishedClimbing = false;
+        boolean climbingDown = false;
         // Constructor, getters, and setters might be added as needed
     }
     Map<Ladder, LadderState> ladderStates = new HashMap<>();
@@ -361,15 +454,15 @@ public class MyGdxGame extends ApplicationAdapter {
 
         for(Ladder ladder : f_ladders) {
             LadderState state = ladderStates.computeIfAbsent(ladder, k -> new LadderState());
-            
-            if(isWithinLadder(f_player.getBounds(), ladder.getBounds()) && !f_jumping) {
+           
+            //When player can start climbing the ladder
+            if(isWithinLadder(f_player.getBodyBounds(), ladder.getBounds()) && !f_jumping) {
                 state.isClimbing = true;
                 f_player.checkLadder(state.isClimbing);
                 anyLadderClimbing = true; // Player is climbing at least one ladder
                 //System.out.println("CAN CLIMB 1!");
                 
-                // Handle input and movement here as before
-                // Note: You may need a more sophisticated system to handle up/down movement across multiple ladders
+                
                 if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
    				 state.climbingUp = true;
    			 }
@@ -380,15 +473,18 @@ public class MyGdxGame extends ApplicationAdapter {
         			state.canMove = true;
         			f_player.canMove(state.canMove);
         			state.finishedClimbing = false;
-        			//System.out.println("Can move");
-        		
+        			
         			
         			if(f_player.getBodyBounds().y < ladder.getMovementBoundsDown().y + 20) {
         				
-        	    		float newY = ladder.getMovementBoundsDown().y + 2;
+                		
+        	    		float newY = ladder.getMovementBoundsDown().y +1;
+        	    		
          	    		//System.out.println(f_player.getBodyBounds().y);
         	    		//System.out.println(ladder.getMovementBoundsDown().y);
         	    		f_player.setPosition(f_player.getPositionX(), newY);
+        	    		
+        	    		
         	    		    		
         	    		}
         			
@@ -406,21 +502,43 @@ public class MyGdxGame extends ApplicationAdapter {
     		    f_player.checkLadder(state.isClimbing);
     		}
             
-            if(((f_player.getBodyBounds().y + f_player.getBodyBounds().height)  > ladder.getMovementBoundsUp().y + 10) && isWithinLadderX(f_player.getBounds(), ladder.getMovementBoundsUp()) && state.climbingUp){
+            //Let the player spawn above the ladder once reached certain height
+            if(((f_player.getBodyBounds().y + f_player.getBodyBounds().height)  > ladder.getMovementBoundsUp().y + 10) && isWithinLadderX(f_player.getBounds(), ladder.getMovementBoundsUp()) && state.climbingUp
+            		&& isWithinLadder(f_player.getBodyBounds(), ladder.getBounds())){
 				
-	    		float newY = ladder.getBounds().height - 8;
+            	
+            	//should be 292
+	    		float newY = ladder.getBounds().y + 197;
+	    		System.out.println("New Y is: " + newY);
 	    		f_player.setPosition(f_player.getPositionX(), newY);
 	    		//f_finishedClimbing = true;
 	    		//f_player.finishedClimbing(f_finishedClimbing);
 	    		
 	    		
 	    		}
+    		/*
+            // not working because loop checks multiple ladders so state.climbdown will always be false
+            System.out.println(ladder.getMovementBoundsDown().y +20);
+            if(f_player.getBodyBounds().y < ladder.getMovementBoundsDown().y + 20) {
+            	System.out.println("LOOL");
+            	state.climbingDown = true;
+        		f_player.stopClimbingDown(state.climbingDown);        
+        		
+        		}
+            else {
     		
+    		state.climbingDown = false;
+    		f_player.stopClimbingDown(state.climbingDown);        
+    		
+            }
+          */
     		
             
             // Update the ladder state in the map
             ladderStates.put(ladder, state);
         }
+        
+        
 
         // After checking all ladders, update the player's climbing state
         if (anyLadderClimbing) {
@@ -432,8 +550,11 @@ public class MyGdxGame extends ApplicationAdapter {
         
         
         
+        
         //individual checking of each ladder
-        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder2.getMovementBoundsUp()) ) {
+        if(isWithinLadder(f_player.getBodyBounds(), ladder1.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder2.getMovementBoundsUp()) ||
+           isWithinLadder(f_player.getBodyBounds(), ladder3.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder4.getMovementBoundsUp()) ||
+           isWithinLadder(f_player.getBodyBounds(), ladder5.getMovementBoundsUp())) {
 			f_finishedClimbing = true;
 			//System.out.println("Finished climb");
     		f_player.finishedClimbing(f_finishedClimbing);
@@ -444,27 +565,19 @@ public class MyGdxGame extends ApplicationAdapter {
     		f_player.finishedClimbing(f_finishedClimbing);
 		}
         
+       
+       
         
-        //ladder 1
-        
-        if(f_player.getBodyBounds().y < ladder1.getMovementBoundsDown().y + 20) {
-    		f_player.stopClimbingDown(true);        	    		
+        if(isWithinLadder2(f_player.getBodyBounds(), ladder1.getMovementBoundsDown()) || isWithinLadder2(f_player.getBodyBounds(), ladder2.getMovementBoundsDown()) || 
+           isWithinLadder2(f_player.getBodyBounds(), ladder3.getMovementBoundsDown()) || isWithinLadder2(f_player.getBodyBounds(), ladder4.getMovementBoundsDown()) ||
+           isWithinLadder2(f_player.getBodyBounds(), ladder5.getMovementBoundsDown())) {
+        	f_player.stopClimbingDown(true);
+    		//System.out.println("Can't climb down ladder ");
     		}
         else {
 		f_player.stopClimbingDown(false);  
         }
-        
-      
-        
-        
-        //ladder 2
-        
-        if(f_player.getBodyBounds().y < ladder2.getMovementBoundsDown().y + 20) {
-    		f_player.stopClimbingDown(true);        	    		
-    		}
-        else {
-		f_player.stopClimbingDown(false);  
-        }
+    
 		
       
     }
@@ -477,6 +590,23 @@ public class MyGdxGame extends ApplicationAdapter {
                player.y >= ladder.y &&
                player.y + player.height <= ladder.y + ladder.height;
     }
+    
+    boolean isWithinLadder2(Rectangle player, Rectangle ladder) {
+        return player.x >= ladder.x &&
+               player.x + player.width <= ladder.x + ladder.width &&
+               player.y >= ladder.y &&
+               player.y + player.height <= ladder.y + ladder.height - 14;
+    }
+    
+    boolean isWithinLadder3(Circle barrel, Rectangle ladder) {
+        // Checking if all edges of the circle are within the bounds of the rectangle
+        return (barrel.x - (barrel.radius * 2) >= ladder.x) && // Left edge of circle within left edge of ladder
+               (barrel.x + (barrel.radius * 2) <= ladder.x + ladder.width) && // Right edge of circle within right edge of ladder
+               (barrel.y - barrel.radius >= ladder.y) && // Bottom edge of circle within bottom edge of ladder
+               (barrel.y + barrel.radius <= ladder.y + ladder.height); // Top edge of circle within top edge of ladder
+    }
+    
+    
     
     boolean isWithinLadderX(Rectangle player, Rectangle ladder) {
         return player.x >= ladder.x &&
@@ -493,7 +623,9 @@ public class MyGdxGame extends ApplicationAdapter {
     
     
     int newXuX = 150;
+    float oldY;
     private void checkPlayerBarrelCollisions() {
+    	//barrels type 1
         for(Barrel barrel : f_barrels) {
             Circle barrelBounds = barrel.getBounds(); // Get the circular bounds of the barrel
 
@@ -505,15 +637,110 @@ public class MyGdxGame extends ApplicationAdapter {
                 	//System.out.println("Colliding with platform");
                 	//System.out.println(barrel.getPosition().x);
                     barrel.checkCollisionWithGround(true);
-                    barrel.jump(100);
+                    barrel.jump(130);
+                    
+                    //barrel.launch(45, 100);;
                     
                     //barrel.moveX(newXuX);
+                    break;
+                }
+                //if((position.x > leftBound + 2) && (position.x < rightBound - radius - 2)) {
+                
+                if((barrel.getPosition().x < 2) || (barrel.getPosition().x > 1200)){
+                	System.out.println("Triggered");
+                	barrel.setVelocityY(-300);
+                	barrel.setVelocityX(-900);
+                	
                 }
             }
             barrel.checkCollisionWithGround(false);
         }
+        
+        //barrels type 2
+        for (Barrel2 barrel : f_barrels2) {
+            Circle barrelBounds = barrel.getBounds();
+            boolean isOnPlatform = false;
+
+            for (Platform platform : f_platforms) {
+                Rectangle platformBounds = platform.getUpperBounds2();
+                if (Intersector.overlaps(barrelBounds, platformBounds)) {
+                    //System.out.println("Colliding with platform");
+                    barrel.moveX(barrel.getSpeed()); // Move the barrel if it is on a platform
+                    isOnPlatform = true;
+                    barrel.checkCollisionWithGround(isOnPlatform);
+                    barrel.resetDirectionToggle(); // Reset the toggle since it's on a platform now
+                    break;
+                }
+            }
+
+            if (!isOnPlatform) {
+                //System.out.println("Isn't on platform");
+                barrel.checkCollisionWithGround(isOnPlatform);
+                barrel.toggleDirection(); // This will only toggle once per airborne phase
+            }
+           
+            	//int chance = random.nextInt(5) + 1;
+      
+            if(barrel.getChance() == 1) {
+            	if(isWithinLadder3(barrel.getBounds(), ladder5.getBounds()) || isWithinLadder3(barrel.getBounds(), ladder3.getBounds()) || isWithinLadder3(barrel.getBounds(), ladder1.getBounds())) {
+            		System.out.println("Wihthin ladder");
+            		//barrel.ladderGravity(true);
+            		oldY = barrel.getPosition().y;
+            		float newY = oldY - 10; //skip the platform
+            		barrel.setVelocityX(0); //stop the x velocity
+            		barrel.setVelocityY(400);
+            		barrel.setPositionY(newY);
+            		
+            	}
+            	
+            }
+            
+            else if(barrel.getChance() == 2) {
+            	if(isWithinLadder3(barrel.getBounds(), ladder3.getBounds()) || isWithinLadder3(barrel.getBounds(), ladder2.getBounds())) {
+            		System.out.println("Wihthin ladder");
+            		//barrel.ladderGravity(true);
+            		oldY = barrel.getPosition().y;
+            		float newY = oldY - 10; //skip the platform
+            		barrel.setVelocityX(0); //stop the x velocity
+            		barrel.setVelocityY(400);
+            		barrel.setPositionY(newY);
+            		
+            	}
+            	
+            	
+            }
+            
+            else if(barrel.getChance() == 3) {
+            	if(isWithinLadder3(barrel.getBounds(), ladder4.getBounds())) {
+            		System.out.println("Wihthin ladder");
+            		//barrel.ladderGravity(true);
+            		oldY = barrel.getPosition().y;
+            		float newY = oldY - 10; //skip the platform
+            		barrel.setVelocityX(0); //stop the x velocity
+            		barrel.setVelocityY(400);
+            		barrel.setPositionY(newY);
+            		
+            	}
+            	
+            	
+            }
+            
+            
+            	
+            
+        }
+            //barrel.checkCollisionWithGround(false);
+            //dispose barrel after reaching certain position
+            
+        
     }
     
+    
+    private void checkPowerUpCollisions() {
+    	if(f_player.getBounds().overlaps(f_powerUp.getBounds())) {
+    		f_powerUp.collide();
+    	}
+    }
     
     
     
@@ -528,6 +755,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_batch.dispose();
         f_player.dispose();
         f_BGM.dispose();
+        f_backgroundTexture.dispose();
     }
 }
 
