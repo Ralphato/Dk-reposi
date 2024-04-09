@@ -28,7 +28,8 @@ public class Player {
     private Texture f_climbDown;
     private Texture[] f_animationTexture;
     private Texture[] f_animationTextureClimbing;
-    private float f_x, f_y;
+    protected float f_x;
+	protected float f_y;
     private float f_scaleX, f_scaleY;
     private float f_scaleXClimb, f_scaleYClimb;
     private float f_xVelocity;
@@ -53,7 +54,8 @@ public class Player {
     private boolean f_moving;
     private boolean f_stopClimbingDown;
     private boolean f_stopClimbingUp;
-    
+    public boolean f_teleport;
+    private int f_usesLeft=1;
     /**
      * Initializes a new instance of the Player class.
      */
@@ -109,12 +111,13 @@ public class Player {
     /**
      * Causes the player to jump.
      */
-    
+
     private void jump() {
         f_yVelocity = 9;
         if(!f_climbing) {
         f_jumping = true;
         }
+        
        
     }
   
@@ -243,7 +246,7 @@ public class Player {
 	            f_lookingRight = false;
 	        }
 	
-	        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+	        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)&&f_x - 200 * delta>=0) {
 	            f_x -= 200 * delta;
 	            f_lookingLeft = true;
 	            f_lookingRight = false;
@@ -252,7 +255,7 @@ public class Player {
 	            f_climbingNoMove = false;
 	        }
 	
-	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)&&f_x + 200 * delta<=1200) {
 	            f_x += 200 * delta;
 	            f_lookingRight = true;
 	            f_lookingLeft = false;
@@ -260,7 +263,12 @@ public class Player {
 	            f_idleLeft = false;
 	            f_climbingNoMove = false;
 	        }
-    	
+	        if(f_x<=0) {
+	        	f_x=10;
+	        }
+	        if(f_y<0) {
+	        	f_y=100;
+	        }
 	        if(f_finishedClimbing) {
 	        	
 	        	
@@ -293,23 +301,9 @@ public class Player {
 	                f_lookingLeft = false;
 	            }
 	        }
-	           
-	        if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
-	        	f_y+=200;
-	        	f_jumping=true;
-	        }
-	        if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
-	        	f_y-=200;
-	        } 
+    	}
+	       
 	        
-	        //out of bounds checking
-			if(f_x>=1200) {
-		        	f_xVelocity = -4f;
-		        	f_x+=f_xVelocity;
-			}else if (f_x<=0) {
-		        	f_xVelocity = 4f;
-		        	f_x+=f_xVelocity;
-		        }
 		        
 	        
 	        
@@ -327,15 +321,17 @@ public class Player {
 	                f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
 	            }
 	        }
+	       
+	        }
 	        
+	      
 	       
 	        
 	        
-    	}
+    	
     		
 	        
-	        f_stateTime += delta;
-	    }
+	       
 
     /**
      * Draws the player on the screen.
