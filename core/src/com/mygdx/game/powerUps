@@ -18,7 +18,7 @@ public class powerUps extends Player {
 	private int INITALXPOS;
 	private int INITALYPOS;
 	private Rectangle f_bounds;
-	
+	private Player f_player;
 	
 	public powerUps(float xPosition, float yPosition, float height, float width, int powerUpNum) {
 		this.f_itemX=xPosition;
@@ -29,6 +29,7 @@ public class powerUps extends Player {
 		this.INITALXPOS=(int)xPosition;
 		this.INITALYPOS=(int)yPosition;
 		this.f_bounds = new Rectangle (f_itemX+10,f_itemY,f_itemWidth-10,f_itemHeight);
+		texturize();
 	}
 	public Rectangle getBounds() {
 		return f_bounds;
@@ -43,9 +44,6 @@ public class powerUps extends Player {
 				this.f_texture = new Texture("badlogic.jpg");
 			}
 	}
-	public boolean getTeleport() {
-		return f_usesLeft==1;
-	}
 	public void collide() {
 		
 			if(this.f_powerNum==1) {
@@ -57,36 +55,11 @@ public class powerUps extends Player {
 				System.out.println("Heheheha\nHeheheha\nHeheheha");
 			
 			}
-			
 		
 		
 	}
-	 public void teleport() {
-  	   System.out.println("teleport activated!");
-      	f_usesLeft=1;
-      	System.out.println("uses left: "+f_usesLeft);
-      		
-      	if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
-      		setPosition(f_x,f_y+200);
-      		System.out.println(getPositionX()+" "+getPositionY());
-      		System.out.println("moved");
-      		f_usesLeft--;    	
-          }
-          if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
-          	this.setPosition(f_x,f_y-200);
-          	f_usesLeft--;
-          } 
-          if(Gdx.input.isKeyJustPressed(Input.Keys.D)&&f_x+200<=1200) {
-          	this.setPosition(f_x+200,f_y);
-          	f_usesLeft--;    	
-          }
-          if(Gdx.input.isKeyJustPressed(Input.Keys.A)&&f_x-200>=0) {
-          	this.setPosition(f_x-200,f_y);
-          	f_usesLeft--;
-          } 
-          
-      }
 	public void render(SpriteBatch batch) {
+	
         batch.draw(f_texture, f_itemX , f_itemY ,f_itemHeight,f_itemWidth);
     }
 	public float getXPosition() {
@@ -95,15 +68,27 @@ public class powerUps extends Player {
 	public float getYPosition() {
 		return f_itemY;
 	}
-	
-	public void update(float delta) {
-		if(getTeleport()) {
-			teleport();
+	private void teleport() {
+		f_usesLeft=3;
+	while(f_usesLeft>0) {
+	if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
+		setPosition(getPositionY()+200,getPositionX());
+		f_usesLeft--;    	
+    }
+    if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
+    	setPosition(getPositionY()-200,getPositionX());
+    	f_usesLeft--;
+    } 
+    if(Gdx.input.isKeyJustPressed(Input.Keys.D)&&f_x+200<=1200) {
+    	setPosition(getPositionX()+200,getPositionY());
+    	f_usesLeft--;    	
+    }
+    if(Gdx.input.isKeyJustPressed(Input.Keys.A)&&f_x-200>=0) {
+    	setPosition(getPositionX()-200,getPositionY());
+    	f_usesLeft--;
+    } 
 		}
-		
-	}
-	
-		
+		}
 		private void immunity() {
 			//TODO make player health and interactions
 			System.out.println("Can't touch this");
@@ -111,12 +96,8 @@ public class powerUps extends Player {
 		public void changeYPos(int change) {
 			this.f_itemY+=change;
 		}
-		public void removeItem() {
-			this.f_bounds=new Rectangle(-400,f_itemY,f_itemWidth-20,f_itemHeight);
-			this.f_itemX=-400;
-		}
+
 		public void dispose() {
-			//removeItem();
-			
+			f_texture.dispose();
 		}
 }
