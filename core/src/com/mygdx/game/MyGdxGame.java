@@ -37,7 +37,8 @@ public class MyGdxGame extends ApplicationAdapter {
     private ArrayList<Ladder> f_ladders;
     private ArrayList<Barrel> f_barrels;
     private ArrayList<Barrel2> f_barrels2;
-    private powerUps f_powerUp;
+    private ArrayList<powerUps> f_powerUps;
+    powerUps powerUps1;
     private Platform f_currentPlatform; 
     private float PlatformY;
     private Rectangle f_playerBounds, f_legBounds, f_bodyBounds;
@@ -58,6 +59,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private final int worldWidth = 1250; // Width of the world
     private final int worldHeight = 1400; // Height of the world
     private Texture f_backgroundTexture;
+
 
     /**
      * Initializes the game components.
@@ -80,6 +82,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_BGM.play();
         f_BGM.setLooping(true);
         f_platforms = new ArrayList<>();
+        f_powerUps = new ArrayList<>();
         f_platformsNoRender = new ArrayList<>();
         f_ladders = new ArrayList<>();
         f_barrels = new ArrayList<>();
@@ -141,22 +144,19 @@ public class MyGdxGame extends ApplicationAdapter {
         ladder5 = new Ladder(900, 900, 200, 150, ladderTexture);
         //ladder6 = new Ladder(200, 1100, 200, 150, ladderTexture);
         
-        
-
+        powerUps1 = new powerUps(100,100,100,100,1);
+        f_powerUps.add(powerUps1);
         
         //adding barrels
        
        //barrel 1 
         
-        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
-        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
-        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
-        f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
-       
+        //f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+        
         
         
         //barrel 2 spawning
-        //scheduleBarrelSpawning();
+        scheduleBarrelSpawning();
       
         
   
@@ -196,11 +196,14 @@ public class MyGdxGame extends ApplicationAdapter {
         
         f_batch.begin();
         
-        f_batch.draw(f_backgroundTexture, 0, 0, worldWidth, worldHeight);
+        //f_batch.draw(f_backgroundTexture, 0, 20, worldWidth, worldHeight);
         renderPlatforms();
         renderLadders();
         renderBarrels();
         updateBarrels();
+        
+        renderPowerUps();
+        
         f_player.draw(f_batch);
 
         f_batch.end();
@@ -213,14 +216,15 @@ public class MyGdxGame extends ApplicationAdapter {
         
        
         
-        checkPlayerBarrelCollisions();
-        //checkPowerUpCollisions();
+        checkBarrelPlatformCollisions();
+        checkBarrelPlayerCollisions();
+        checkPowerUpCollisions();
         
-        /*
+       
         //debugging purposes
         ShapeRenderer shapeRenderer = new ShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        
+        /*
         shapeRenderer.setColor(Color.RED);
         for (Platform platform : f_platforms) {
             Rectangle Upperbounds = platform.getUpperBounds();
@@ -240,10 +244,7 @@ public class MyGdxGame extends ApplicationAdapter {
         	 Circle Barrelbounds = barrel.getBounds();
              shapeRenderer.circle(Barrelbounds.x, Barrelbounds.y, Barrelbounds.radius);
         }
-        for(Barrel2 barrel : f_barrels2) {
-       	 Circle Barrelbounds = barrel.getBounds();
-            shapeRenderer.circle(Barrelbounds.x, Barrelbounds.y, Barrelbounds.radius);
-       }
+        
         
         //ladder bounds
         shapeRenderer.setColor(Color.PURPLE);
@@ -263,9 +264,23 @@ public class MyGdxGame extends ApplicationAdapter {
         shapeRenderer.setColor(Color.GREEN);
         Rectangle playerBoundsLegs = f_player.getLegsBounds();
         shapeRenderer.rect(playerBoundsLegs.x, playerBoundsLegs.y, playerBoundsLegs.width, playerBoundsLegs.height);
+        */
+        shapeRenderer.setColor(Color.BLACK);
+        for(Barrel2 barrel : f_barrels2) {
+          	 Circle Barrelbounds = barrel.getBounds();
+               shapeRenderer.circle(Barrelbounds.x, Barrelbounds.y, Barrelbounds.radius);
+          }
+        shapeRenderer.setColor(Color.WHITE); 
+        Rectangle playerShrinkedBounds = f_player.getShrinkedBounds();
+        shapeRenderer.rect(playerShrinkedBounds.x, playerShrinkedBounds.y, playerShrinkedBounds.width, playerShrinkedBounds.height);
+
+        
+        shapeRenderer.setColor(Color.WHITE); 
+        Rectangle powerBounds = powerUps1.getBounds();
+        shapeRenderer.rect(powerBounds.x, powerBounds.y, powerBounds.width, powerBounds.height);
         
         shapeRenderer.end();
-        */
+        
 
     }
     
@@ -308,6 +323,11 @@ public class MyGdxGame extends ApplicationAdapter {
     	}
     }
     
+    private void renderPowerUps() {
+    
+    		powerUps1.render(f_batch);
+    	    	
+    }
     private void updateBarrels() {
     	 // Use an Iterator to safely remove elements while iterating
         Iterator<Barrel> barrelIterator = f_barrels.iterator();
@@ -624,7 +644,7 @@ public class MyGdxGame extends ApplicationAdapter {
     
     int newXuX = 150;
     float oldY;
-    private void checkPlayerBarrelCollisions() {
+    private void checkBarrelPlatformCollisions() {
     	//barrels type 1
         for(Barrel barrel : f_barrels) {
             Circle barrelBounds = barrel.getBounds(); // Get the circular bounds of the barrel
@@ -683,7 +703,7 @@ public class MyGdxGame extends ApplicationAdapter {
       
             if(barrel.getChance() == 1) {
             	if(isWithinLadder3(barrel.getBounds(), ladder5.getBounds()) || isWithinLadder3(barrel.getBounds(), ladder3.getBounds()) || isWithinLadder3(barrel.getBounds(), ladder1.getBounds())) {
-            		System.out.println("Wihthin ladder");
+            		//System.out.println("Wihthin ladder");
             		//barrel.ladderGravity(true);
             		oldY = barrel.getPosition().y;
             		float newY = oldY - 10; //skip the platform
@@ -697,7 +717,7 @@ public class MyGdxGame extends ApplicationAdapter {
             
             else if(barrel.getChance() == 2) {
             	if(isWithinLadder3(barrel.getBounds(), ladder3.getBounds()) || isWithinLadder3(barrel.getBounds(), ladder2.getBounds())) {
-            		System.out.println("Wihthin ladder");
+            		//System.out.println("Wihthin ladder");
             		//barrel.ladderGravity(true);
             		oldY = barrel.getPosition().y;
             		float newY = oldY - 10; //skip the platform
@@ -712,7 +732,7 @@ public class MyGdxGame extends ApplicationAdapter {
             
             else if(barrel.getChance() == 3) {
             	if(isWithinLadder3(barrel.getBounds(), ladder4.getBounds())) {
-            		System.out.println("Wihthin ladder");
+            		//System.out.println("Wihthin ladder");
             		//barrel.ladderGravity(true);
             		oldY = barrel.getPosition().y;
             		float newY = oldY - 10; //skip the platform
@@ -736,9 +756,77 @@ public class MyGdxGame extends ApplicationAdapter {
     }
     
     
+    private void checkBarrelPlayerCollisions() {
+        // Check collisions with Barrel type 1
+        Iterator<Barrel2> barrel2Iterator = f_barrels2.iterator();
+        while (barrel2Iterator.hasNext()) {
+            Barrel2 barrel = barrel2Iterator.next();
+            if (Intersector.overlaps(barrel.getBounds(), f_player.getShrinkedBounds())) {
+                // Handle the collision: decrease player health, remove the barrel
+                f_player.decreaseHealth(1); // Adjust the decrease value as needed
+                barrel2Iterator.remove(); // Remove the barrel from the list
+                shakePlayer();
+                
+                // Check player's health status
+                if (f_player.getHealth() <= 0) {
+                    removePlayer(); // Implement this method based on your game's needs
+                    return; // Exit the method if the player is removed
+                }
+            }
+        }
+
+        // Separate loop for Barrel type 2 if needed
+        // Iterate through f_barrels2 if you have different logic for Barrel2 objects
+
+        // Other collision checks (e.g., platform collisions) can remain in their respective methods or loops
+    }
+
+    private void removePlayer() {
+        // Implementation for removing the player from the game
+        // This could involve hiding the player sprite, setting the player object to null, etc.
+    	System.out.println("LOol");
+    }
+    
+    private void shakePlayer() {
+    	System.out.println("SHAKINF");
+    	 // Define the intensity of the shake (how far the player moves)
+        float shakeIntensity = 300;
+
+        // Calculate random offsets for the shake effect
+        float offsetX = (float)Math.random() * shakeIntensity * 2 - shakeIntensity;
+        //float offsetY = (float)Math.random() * shakeIntensity * 2 - shakeIntensity;
+
+        // Temporarily adjust the player's position to simulate shaking
+        // This assumes you have methods to get and set the player's position
+        float originalX = f_player.getPositionX();
+        float originalY = f_player.getPositionY();
+
+        // Apply the shake effect by moving the player to a new position
+        f_player.setPosition(originalX + offsetX, originalY);
+
+        // Optionally, you might want to immediately return the player to the original position
+        // after a very short delay, to make it look like a quick shake
+        // This could be handled with a timer if your framework supports scheduling tasks
+        // For simplicity, here's a conceptual way to reset the position:
+        // (Note: Actual implementation may vary based on your game loop and timing mechanism)
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                f_player.setPosition(originalX, originalY);
+            }
+        }, 0.05f); // Reset position after 0.05 seconds
+    }
+
+    
+    //Hunter work on this
     private void checkPowerUpCollisions() {
-    	if(f_player.getBounds().overlaps(f_powerUp.getBounds())) {
-    		f_powerUp.collide();
+    	if(f_player.getBounds().overlaps(powerUps1.getBounds())) {
+    		//powerUps1.collide();
+    		
+    		 if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+    			 System.out.println("LKOOL");
+    			 f_player.setPosition(f_player.getPositionX()+ 200,f_player.getPositionY());
+    		 }
     	}
     }
     
