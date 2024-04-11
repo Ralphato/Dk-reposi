@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -15,9 +18,12 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
+import com.badlogic.gdx.graphics.GL20;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.GL20;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Input;
 import java.util.Random;
@@ -56,10 +62,12 @@ public class MyGdxGame extends ApplicationAdapter {
     private float barrelVelocity = 200;
     Random random = new Random();
     Texture barrel2Texture;
+    Texture barrel1Texture;
     private final int worldWidth = 1250; // Width of the world
     private final int worldHeight = 1400; // Height of the world
     private Texture f_backgroundTexture;
 
+    private GLProfiler profiler;
 
     /**
      * Initializes the game components.
@@ -69,6 +77,9 @@ public class MyGdxGame extends ApplicationAdapter {
     	
     	
     	
+    	//loadPrevious();
+        profiler = new GLProfiler(Gdx.graphics);
+        profiler.enable(); // Start profiling
         
         // The rest of your initialization
         f_batch = new SpriteBatch();
@@ -92,6 +103,9 @@ public class MyGdxGame extends ApplicationAdapter {
         f_backgroundTexture = new Texture("background.png");
         
         initializePlatforms();
+        
+        
+       
     }
 
     /**
@@ -104,7 +118,7 @@ public class MyGdxGame extends ApplicationAdapter {
         
         Texture ladderTexture = new Texture("ladder.png");
         
-        Texture barrel1Texture = new Texture("barrel1.png");
+        barrel1Texture = new Texture("barrel1.png");
         barrel2Texture = new Texture("barrel2.png");
 
         // First row of platforms
@@ -156,8 +170,8 @@ public class MyGdxGame extends ApplicationAdapter {
         
         
         //barrel 2 spawning
-        scheduleBarrelSpawning();
-      
+        //scheduleBarrelSpawning();
+        //scheduleBarrelSpawning2();
         
   
         //f_barrels2.add(new Barrel2(barrel2Texture,40,1095,23,1));    
@@ -183,7 +197,9 @@ public class MyGdxGame extends ApplicationAdapter {
     @Override
     public void render() {
     	 
-    	
+    	 profiler.reset();
+
+         
     	
     	f_gameScreen.render(Gdx.graphics.getDeltaTime());
         clearScreen();
@@ -202,7 +218,7 @@ public class MyGdxGame extends ApplicationAdapter {
         renderBarrels();
         updateBarrels();
         
-        renderPowerUps();
+        //renderPowerUps();
         
         f_player.draw(f_batch);
 
@@ -281,7 +297,13 @@ public class MyGdxGame extends ApplicationAdapter {
         
         shapeRenderer.end();
         
+       
+   
 
+        // Now we can get the number of calls from the GLProfiler instance
+        System.out.println("OpenGL calls this frame: " + profiler.getCalls());
+        System.out.println("Texture bindings this frame: " + profiler.getTextureBindings());
+        System.out.println("Draw calls this frame: " + profiler.getDrawCalls());
     }
     
 
@@ -366,7 +388,28 @@ public class MyGdxGame extends ApplicationAdapter {
             }
         }, 0, 5, 20); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
     }
+    
+    public void scheduleBarrelSpawning2() {
+        Timer.schedule(new Task(){
+            @Override
+            public void run() {
+                // Spawn barrels with varying positions based on chance
+                f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+                 
+            }
+        }, 3, 25 , 5); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
+    }
 
+    
+    public void loadPrevious() {
+    	 GameState gameState = GameUtils.loadGameState();
+         if (gameState != null) {
+             // Load the game state
+             //currentScore = gameState.score;
+             f_player.setPosition(gameState.playerPositionX, gameState.playerPositionY);
+             // ... more as needed
+         }
+    }
     /**
      * Checks for collisions between the player and platforms.
      */
@@ -830,7 +873,17 @@ public class MyGdxGame extends ApplicationAdapter {
     	}
     }
     
-    
+    //function to save the functions before disposing
+    public void setOldVar() {
+    	 GameState gameState = new GameState();
+         // Set the variables you want to save
+         //gameState.score = currentScore;
+         gameState.playerPositionX = f_player.getPositionX();
+         gameState.playerPositionY = f_player.getPositionY();
+         // ... more as needed
+         
+         GameUtils.saveGameState(gameState);
+    }
     
     
     
@@ -844,6 +897,11 @@ public class MyGdxGame extends ApplicationAdapter {
         f_player.dispose();
         f_BGM.dispose();
         f_backgroundTexture.dispose();
+        profiler.disable();
+       
+        //setOldVar();
+        //super.dispose();
+        
     }
 }
 
