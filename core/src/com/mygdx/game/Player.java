@@ -23,8 +23,9 @@ public class Player {
     private Texture f_texture;
     private Texture f_textureJump;
     private Texture f_textureFall;
-    private Texture f_textureSkid;
+    private Texture f_textureWhip;
     private Texture f_textureClimb;
+    
     private Texture f_climbDown;
     private Texture[] f_animationTexture;
     private Texture[] f_animationTextureClimbing;
@@ -54,8 +55,9 @@ public class Player {
     private boolean f_moving;
     private boolean f_stopClimbingDown;
     private boolean f_stopClimbingUp;
-    public boolean f_teleport;
-    private int f_usesLeft=1;
+    private boolean f_lol;
+    private int f_health;
+    Whip playerWhip; 
     /**
      * Initializes a new instance of the Player class.
      */
@@ -67,6 +69,8 @@ public class Player {
 
         f_textureClimb = new Texture("climb1.png");
         f_climbDown = new Texture("climbDown.png");
+        f_textureWhip = new Texture("whip1.png");
+        
         f_x = 100;
         f_y = 100;
         f_scaleX = 1f;
@@ -76,10 +80,10 @@ public class Player {
         f_yVelocity = 0;
         f_jumping = false;
         f_lookingLeft = false;
+        f_health = 3;
         
         
-        
-        
+     
         //running animation
         f_animationTexture = new Texture[FRAME_COUNT];
         TextureRegion[] runFrames = new TextureRegion[FRAME_COUNT];
@@ -111,16 +115,26 @@ public class Player {
     /**
      * Causes the player to jump.
      */
-
+    
     private void jump() {
         f_yVelocity = 9;
         if(!f_climbing) {
         f_jumping = true;
         }
-        
        
     }
   
+    
+   
+    
+    public int getHealth() {
+    	return f_health;
+    }
+    
+    public int decreaseHealth(int x) {
+    	return f_health -= x;
+    }
+    
     public void setPosition(float x, float y) {
     	this.f_x = x;
     	this.f_y = y;
@@ -137,6 +151,11 @@ public class Player {
     public Rectangle getBounds() {
     	
         return new Rectangle(f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+    }
+    
+    public Rectangle getShrinkedBounds() {
+    	
+        return new Rectangle(f_x + 15, f_y, (f_texture.getWidth() * f_scaleX) - 40, (f_texture.getHeight() * f_scaleY) - 30);
     }
     
     public Rectangle getBodyBounds() {
@@ -189,6 +208,16 @@ public class Player {
     
     public void endOfPlatform(boolean trollol) {
     	f_jumping = trollol;
+    }
+    
+    public boolean rightDirection() {
+    	if(f_idleRight || f_lookingRight) {
+    		return true;
+    	}
+    	else if(f_idleLeft || f_lookingLeft) {
+    		return false;
+    	}
+    	return false;
     }
     
 
@@ -246,29 +275,32 @@ public class Player {
 	            f_lookingRight = false;
 	        }
 	
-	        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)&&f_x - 200 * delta>=0) {
+	        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 	            f_x -= 200 * delta;
 	            f_lookingLeft = true;
+	            f_lol = true; //will keep track which direction the player will face once he stops falling
 	            f_lookingRight = false;
 	            f_idleRight = false;
 	            f_idleLeft = false;
 	            f_climbingNoMove = false;
+	            //System.out.println("Moving to the left");
+	            //System.out.println("Player position is now: " + f_x);
 	        }
 	
-	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)&&f_x + 200 * delta<=1200) {
+	        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 	            f_x += 200 * delta;
 	            f_lookingRight = true;
+	            f_lol = false; //will keep track which direction the player will face once he stops falling
 	            f_lookingLeft = false;
 	            f_idleRight = false;
 	            f_idleLeft = false;
 	            f_climbingNoMove = false;
+	            //System.out.println("Moving to the right");
+	            //System.out.println("Player position is now: " + f_x);
 	        }
-	        if(f_x<=0) {
-	        	f_x=10;
-	        }
-	        if(f_y<0) {
-	        	f_y=100;
-	        }
+	        
+	        
+    	
 	        if(f_finishedClimbing) {
 	        	
 	        	
@@ -291,7 +323,8 @@ public class Player {
 	            f_yVelocity -= 0.5f;
 	            f_y += f_yVelocity;
 	            f_isFalling = false;
-	           
+	           //System.out.println("Player is jumping");
+	           //System.out.println("Player y position is now:" + f_y);
 	
 	            if (f_yVelocity <= 0) {
 	                f_isFalling = true;
@@ -301,9 +334,23 @@ public class Player {
 	                f_lookingLeft = false;
 	            }
 	        }
-    	}
-	       
+	           
+	        if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
+	        	f_y+=200;
+	        	f_jumping=true;
+	        }
+	        if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
+	        	f_y-=200;
+	        } 
 	        
+	        //out of bounds checking
+			if(f_x>=1200) {
+		        	f_xVelocity = -4f;
+		        	f_x+=f_xVelocity;
+			}else if (f_x<=0) {
+		        	f_xVelocity = 4f;
+		        	f_x+=f_xVelocity;
+		        }
 		        
 	        
 	        
@@ -318,20 +365,25 @@ public class Player {
 	                f_yVelocity = 0;
 	                f_jumping = false;
 	                f_isFalling = false;
-	                f_idleRight = true; // You might want to adjust this based on the player's direction before jumping
+	                if(f_lol) {
+	                f_idleRight = false; 
+	                f_idleLeft = true;
+	                }
+	                else {
+	                	f_idleRight = true; 
+		                f_idleLeft = false;
+	                }
 	            }
 	        }
-	       
-	        }
 	        
-	      
 	       
 	        
 	        
-    	
+    	}
     		
 	        
-	       
+	        f_stateTime += delta;
+	    }
 
     /**
      * Draws the player on the screen.
@@ -407,6 +459,9 @@ public class Player {
 	    	 }  	
 	    	
 	    }
+
+	    
+	    
 	    
 	    // Disposes resources including texture
 	    public void dispose() {
