@@ -36,6 +36,7 @@ import com.badlogic.gdx.assets.AssetManager;
 public class MyGdxGame extends ApplicationAdapter {
     private SpriteBatch f_batch;
     private Player f_player;
+    private donkeyKong f_donkey;
     private AssetManager f_assetManager;
     private Music f_BGM;
     private ArrayList<Platform> f_platforms;
@@ -43,6 +44,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private ArrayList<Ladder> f_ladders;
     private ArrayList<Barrel> f_barrels;
     private ArrayList<Barrel2> f_barrels2;
+    private ArrayList<Barrel3> f_barrels3;
     private ArrayList<powerUps> f_powerUps;
     powerUps powerUps1;
     private Platform f_currentPlatform; 
@@ -66,7 +68,11 @@ public class MyGdxGame extends ApplicationAdapter {
     private final int worldWidth = 1250; // Width of the world
     private final int worldHeight = 1400; // Height of the world
     private Texture f_backgroundTexture;
-
+    private Texture f_gameOverTexture;
+    private boolean f_endGame;
+    private boolean f_removeBarrel3 = false;
+    Whip playerWhip;
+    private float f_whipX, f_whipY;
     private GLProfiler profiler;
 
     /**
@@ -85,7 +91,10 @@ public class MyGdxGame extends ApplicationAdapter {
         f_batch = new SpriteBatch();
         f_gameScreen = new gameScreen(this);
         f_player = new Player();
+        f_donkey = new donkeyKong();
         f_assetManager = new AssetManager();
+        f_assetManager.load("zehahaha_laugh.mp3", Music.class);
+        f_assetManager.finishLoading(); // Typically called in the loading screen logic
         f_assetManager.load("DKMusic1.mp3", Music.class);
         f_assetManager.finishLoading();
         f_BGM = f_assetManager.get("DKMusic1.mp3", Music.class);
@@ -97,14 +106,15 @@ public class MyGdxGame extends ApplicationAdapter {
         f_platformsNoRender = new ArrayList<>();
         f_ladders = new ArrayList<>();
         f_barrels = new ArrayList<>();
-        f_barrels2 = new ArrayList();
+        f_barrels2 = new ArrayList<>();
+        f_barrels3 = new ArrayList<>();
         f_playerBounds = f_player.getBodyBounds();
         f_legBounds = f_player.getLegsBounds();
         f_backgroundTexture = new Texture("background.png");
-        
+        f_gameOverTexture = new Texture("End UI.png");
         initializePlatforms();
         
-        
+        playerWhip = new Whip(f_player.getPositionX(), f_player.getPositionY(), 50, 5, "whip1.png");
        
     }
 
@@ -169,10 +179,10 @@ public class MyGdxGame extends ApplicationAdapter {
         
         
         
-        //barrel 2 spawning
-        //scheduleBarrelSpawning();
-        //scheduleBarrelSpawning2();
-        
+        //barrel spawning
+        scheduleBarrelSpawning();
+        scheduleBarrelSpawning2();
+        scheduleBarrelSpawning3();
   
         //f_barrels2.add(new Barrel2(barrel2Texture,40,1095,23,1));    
         
@@ -204,6 +214,8 @@ public class MyGdxGame extends ApplicationAdapter {
     	f_gameScreen.render(Gdx.graphics.getDeltaTime());
         clearScreen();
         f_player.update(Gdx.graphics.getDeltaTime());
+        f_donkey.update(Gdx.graphics.getDeltaTime());
+        playerWhip.update(Gdx.graphics.getDeltaTime());
         //render bounds
         f_playerBounds = f_player.getBodyBounds();
         f_legBounds = f_player.getLegsBounds();
@@ -218,9 +230,29 @@ public class MyGdxGame extends ApplicationAdapter {
         renderBarrels();
         updateBarrels();
         
+        
         //renderPowerUps();
+        renderWhip();
         
         f_player.draw(f_batch);
+        f_donkey.draw(f_batch);
+        
+        if(f_endGame) {
+            f_batch.setColor(1, 1, 1, 0.8f);  // Set semi-transparency for the game over texture
+            f_batch.draw(f_gameOverTexture, 0, 0, worldWidth, worldHeight);
+
+            f_batch.setColor(1, 1, 1, 1);  // Reset transparency before drawing Donkey Kong
+            f_donkey.setPositionX(700);
+            f_donkey.setPositionY(1600);
+            f_donkey.endGame(true);
+            f_donkey.draw(f_batch);  
+
+            f_player.setPosition(-3030, -3000); // Hides player by setting offscreen position
+           
+          
+        }
+
+        
 
         f_batch.end();
         
@@ -280,7 +312,7 @@ public class MyGdxGame extends ApplicationAdapter {
         shapeRenderer.setColor(Color.GREEN);
         Rectangle playerBoundsLegs = f_player.getLegsBounds();
         shapeRenderer.rect(playerBoundsLegs.x, playerBoundsLegs.y, playerBoundsLegs.width, playerBoundsLegs.height);
-        */
+        
         shapeRenderer.setColor(Color.BLACK);
         for(Barrel2 barrel : f_barrels2) {
           	 Circle Barrelbounds = barrel.getBounds();
@@ -295,15 +327,15 @@ public class MyGdxGame extends ApplicationAdapter {
         Rectangle powerBounds = powerUps1.getBounds();
         shapeRenderer.rect(powerBounds.x, powerBounds.y, powerBounds.width, powerBounds.height);
         
-        shapeRenderer.end();
-        
        
-   
+        
+       */
+    	shapeRenderer.end();
 
         // Now we can get the number of calls from the GLProfiler instance
-        System.out.println("OpenGL calls this frame: " + profiler.getCalls());
-        System.out.println("Texture bindings this frame: " + profiler.getTextureBindings());
-        System.out.println("Draw calls this frame: " + profiler.getDrawCalls());
+        //System.out.println("OpenGL calls this frame: " + profiler.getCalls());
+        //System.out.println("Texture bindings this frame: " + profiler.getTextureBindings());
+        //System.out.println("Draw calls this frame: " + profiler.getDrawCalls());
     }
     
 
@@ -343,13 +375,27 @@ public class MyGdxGame extends ApplicationAdapter {
     	for(Barrel2 barrel: f_barrels2) {
     		barrel.render(f_batch);
     	}
+    	for(Barrel3 barrel: f_barrels3) {
+    		barrel.render(f_batch);
+    	}
     }
     
     private void renderPowerUps() {
     
-    		powerUps1.render(f_batch);
-    	    	
+    		powerUps1.render(f_batch); 	    	
     }
+    
+    private void renderWhip() {
+    	
+    	
+    	f_whipX = f_player.getPositionX();
+    	f_whipY = f_player.getPositionY();
+    	playerWhip.getPlayerPosition(f_whipX, f_whipY); //send player's positions to whip class
+    	playerWhip.getPlayerRightDirection(f_player.rightDirection()); //send if player is in right direction to whip class
+    	playerWhip.draw(f_batch);
+    	
+    }
+    
     private void updateBarrels() {
     	 // Use an Iterator to safely remove elements while iterating
         Iterator<Barrel> barrelIterator = f_barrels.iterator();
@@ -374,6 +420,19 @@ public class MyGdxGame extends ApplicationAdapter {
                 barrel2Iterator.remove();
             }
         }
+        
+        Iterator<Barrel3> barrel3Iterator = f_barrels3.iterator();
+        while (barrel3Iterator.hasNext()) {
+            Barrel3 barrel = barrel3Iterator.next();
+            barrel.update(Gdx.graphics.getDeltaTime());
+            
+            if(f_removeBarrel3) {
+            	barrel3Iterator.remove();
+            	f_removeBarrel3 = false; //so it only removes 1 barrel
+            	
+            }
+    
+        }
     }
     
     public void scheduleBarrelSpawning() {
@@ -383,23 +442,55 @@ public class MyGdxGame extends ApplicationAdapter {
                 // Randomize the chance for each spawn
                 int chance = random.nextInt(5) + 1;
                 // Spawn barrels with varying positions based on chance
-                f_barrels2.add(new Barrel2(barrel2Texture,40,1095,23,chance));    
-                 
+                if(!f_endGame) {
+                    
+                    f_barrels2.add(new Barrel2(barrel2Texture,350,1095,23,chance));
+                    f_donkey.throwing(true);
+                    f_removeBarrel3 = true;
+                    // Schedule another task to set throwing to false after a delay
+                    Timer.schedule(new Task() {
+                        @Override
+                        public void run() {
+                            f_donkey.throwing(false);
+                        }
+                    }, 0.7f); // Delay in seconds after which to set throwing to false
+                }
             }
         }, 0, 5, 20); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
     }
+
     
     public void scheduleBarrelSpawning2() {
         Timer.schedule(new Task(){
             @Override
             public void run() {
                 // Spawn barrels with varying positions based on chance
-                f_barrels.add(new Barrel(barrel1Texture,20,1100,23, 200));
+            	if(!f_endGame) {
+                f_barrels.add(new Barrel(barrel1Texture,50,1100,23, 200));
+            	}
                  
             }
-        }, 3, 25 , 5); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
+        }, 10, 20 , 7); // Start delay (0 seconds), interval between spawns (20 seconds), number of repetitions (20)
     }
 
+    public void scheduleBarrelSpawning3() {
+        Timer.schedule(new Task(){
+            @Override
+            public void run() {
+                // Randomize the chance for each spawn
+                
+                // Spawn barrels with varying positions based on chance
+                if(!f_endGame) {
+                    f_barrels3.add(new Barrel3(barrel2Texture,35,1100,23));
+
+                    f_removeBarrel3 = false;
+                    
+                  
+                 
+                }
+            }
+        }, 0, 4.99f, 20); //4.99 delay is used here instead of 5 to allow sheduleBarrelSpawning1 to set removeBarrel3 to true
+    }
     
     public void loadPrevious() {
     	 GameState gameState = GameUtils.loadGameState();
@@ -619,7 +710,7 @@ public class MyGdxGame extends ApplicationAdapter {
            isWithinLadder(f_player.getBodyBounds(), ladder3.getMovementBoundsUp()) || isWithinLadder(f_player.getBodyBounds(), ladder4.getMovementBoundsUp()) ||
            isWithinLadder(f_player.getBodyBounds(), ladder5.getMovementBoundsUp())) {
 			f_finishedClimbing = true;
-			//System.out.println("Finished climb");
+			//System.out.println("Finished climbing the ladder");
     		f_player.finishedClimbing(f_finishedClimbing);
 		}
 		else {
@@ -808,11 +899,13 @@ public class MyGdxGame extends ApplicationAdapter {
                 // Handle the collision: decrease player health, remove the barrel
                 f_player.decreaseHealth(1); // Adjust the decrease value as needed
                 barrel2Iterator.remove(); // Remove the barrel from the list
-                shakePlayer();
+                //shakePlayer();
                 
                 // Check player's health status
                 if (f_player.getHealth() <= 0) {
-                    removePlayer(); // Implement this method based on your game's needs
+                    //endGame(); // Implement this method based on your game's needs
+                	f_endGame = true;
+                	changeMusic("zehahaha_laugh.mp3");
                     return; // Exit the method if the player is removed
                 }
             }
@@ -824,10 +917,13 @@ public class MyGdxGame extends ApplicationAdapter {
         // Other collision checks (e.g., platform collisions) can remain in their respective methods or loops
     }
 
-    private void removePlayer() {
-        // Implementation for removing the player from the game
-        // This could involve hiding the player sprite, setting the player object to null, etc.
-    	System.out.println("LOol");
+    private void endGame() {
+    	
+    //	f_batch.begin();
+    	f_batch.draw(f_gameOverTexture, 0, 20, worldWidth, worldHeight);
+       // f_batch.end();
+        Gdx.app.log("Game", "Game Over");
+
     }
     
     private void shakePlayer() {
@@ -885,7 +981,23 @@ public class MyGdxGame extends ApplicationAdapter {
          GameUtils.saveGameState(gameState);
     }
     
-    
+    private void changeMusic(String newMusicFilename) {
+        if (f_BGM != null) {
+            f_BGM.stop(); // Stop current music
+            f_BGM.dispose(); // Dispose current music resource
+        }
+        
+        // Load and play new music
+        f_BGM = f_assetManager.get(newMusicFilename, Music.class);
+        if (f_BGM == null) {
+            f_assetManager.load(newMusicFilename, Music.class);
+            f_assetManager.finishLoading();
+            f_BGM = f_assetManager.get(newMusicFilename, Music.class);
+        }
+        f_BGM.setVolume(0.4f); // Set to your desired volume
+        f_BGM.setLooping(true);
+        f_BGM.play();
+    }
     
     
     /**
@@ -896,6 +1008,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_batch.dispose();
         f_player.dispose();
         f_BGM.dispose();
+        f_backgroundTexture.dispose();
         f_backgroundTexture.dispose();
         profiler.disable();
        
