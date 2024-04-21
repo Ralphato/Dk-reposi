@@ -1,0 +1,237 @@
+package com.mygdx.game;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
+
+public class donkeyKong {
+	
+	private static final int FRAME_COUNT = 6;
+	private Texture f_texture;
+	private Texture f_textureThrowing;
+	private Texture f_textureLaughing;
+	private Texture f_hitTexture1, f_hitTexture2, f_hitTexture3, f_hitTexture4;   
+	private float f_scaleX = 5;
+	private float f_scaleY = 5;
+	private int f_x, f_y;
+	private boolean f_throwing;	
+	private Texture[] f_animationTexture, f_animationTexture2;
+	private Animation<TextureRegion> f_gorillaAnimation, f_stanceAnimation;
+	private boolean f_runAnimation = true;
+	private boolean f_startLaugh = false;
+	private int health = 5;
+	private boolean gotDamaged;
+	private boolean fightingStance = false; //true for testing
+	
+	float targetWidth = 136;
+	float targetHeight = 136;
+
+	float scaleX1 = targetWidth / 71f; // For hit1's original width
+	float scaleY1 = targetHeight / 107f; // For hit1's original height
+
+	float scaleX2 = targetWidth / 71f; // For hit2's original width
+	float scaleY2 = targetHeight / 136f; // For hit2's original height (already the target)
+
+	float scaleX3 = targetWidth / 71f; // For hit3's original width
+	float scaleY3 = targetHeight / 119f; // For hit3's original height
+
+	float scaleX4 = targetWidth / 89f; // For hit4's original width
+	float scaleY4 = targetHeight / 131f; // For hit4's original height
+
+
+	
+
+
+	private float f_stateTime;
+	
+	public donkeyKong(){
+		f_texture = new Texture("smirkingDK.png");
+		f_textureThrowing = new Texture("throwingBarrel.png");
+		f_textureLaughing = new Texture("laugh2.png");
+		
+		//getting hit textures
+		f_hitTexture1 = new Texture("hitTextures/hit1.png");
+		f_hitTexture2 = new Texture("hitTextures/hit2.png");
+		f_hitTexture3 = new Texture("hitTextures/hit3.png");
+		f_hitTexture4 = new Texture("hitTextures/hit4.png");
+		
+		
+		
+		f_x = 100;
+		f_y = 1080;
+		
+		f_animationTexture = new Texture[FRAME_COUNT ];
+        TextureRegion[] runFrames = new TextureRegion[FRAME_COUNT];
+        int j = 3;
+        for (int i = 0; i < FRAME_COUNT; i++) {
+        	if( i < 3) {
+            String frameName = "test" + (i + 1) + ".png";
+            f_animationTexture[i] = new Texture(frameName);
+            runFrames[i] = new TextureRegion(f_animationTexture[i]);
+        	}
+        	else {
+        		//when i = 4
+        		String frameName = "test" + (j) + ".png";
+                f_animationTexture[i] = new Texture(frameName);
+                runFrames[i] = new TextureRegion(f_animationTexture[i]);
+                j--;
+        	}
+        }
+        
+        f_gorillaAnimation = new Animation<TextureRegion>(0.1f, runFrames);
+        
+        
+        //make another animation for stance1 2 3 
+        
+        f_animationTexture2 = new Texture[3];
+        TextureRegion[] runFrames2 = new TextureRegion[3];
+       
+        for (int i = 0; i < 3; i++) {
+        	
+            String frameName = "stance" + (i + 2) + ".png";
+            f_animationTexture2[i] = new Texture(frameName);
+            runFrames2[i] = new TextureRegion(f_animationTexture2[i]);
+        }
+        f_stanceAnimation = new Animation<TextureRegion>(0.1f, runFrames2);
+        
+	}
+	
+	public void toggleValue(boolean animation) {
+		if(animation = true) {
+			f_runAnimation = false;
+		}
+		else if(animation = false) {
+			f_runAnimation = true;
+		}
+	}
+	
+	
+	public void endGame(boolean startLaugh) {
+		f_startLaugh = true;
+	}
+	
+	public void draw(SpriteBatch batch) {
+		 
+		if(!gotDamaged) {
+			
+		 if(!fightingStance) {
+			if (!f_startLaugh) {
+				 if (f_throwing) {
+					 batch.draw(f_textureThrowing, f_x, f_y, f_textureThrowing.getWidth() * f_scaleX, f_textureThrowing.getHeight() * f_scaleY);
+				 }
+				 else {
+				 batch.draw(f_texture, f_x, f_y, f_textureThrowing.getWidth() * f_scaleX, f_textureThrowing.getHeight() * f_scaleY);
+				 }
+			}
+			 
+			
+			if(f_startLaugh) {
+				if(f_runAnimation) {
+					batch.draw(f_textureLaughing, f_x, 750, f_texture.getWidth(), f_texture.getHeight());
+					Timer.schedule(new Task() {
+			            @Override
+			            public void run() {
+			            
+			            	f_runAnimation = false; //waits 1 second and then calls this
+			            
+			            	
+			            }
+			        }, 1); 	
+				}
+				
+				else {
+				TextureRegion currentFrame = f_gorillaAnimation.getKeyFrame(f_stateTime /1, true);
+			    batch.draw(currentFrame, f_x, 750, f_texture.getWidth(), f_texture.getHeight());
+				}
+			}
+		 }
+		 
+		 else if(fightingStance) {
+			 //make animation
+			 TextureRegion currentFrame2 = f_stanceAnimation.getKeyFrame(f_stateTime / 5, true);
+			 batch.draw(currentFrame2, f_x, 1090, f_texture.getWidth()/3, f_texture.getHeight()/3);
+		 }
+		 
+		}
+		
+		else if(gotDamaged) {
+			switch(health) {
+			 case 1:
+				 	batch.draw(f_hitTexture4, f_x, f_y + 15, 89 * scaleX4, 131 * scaleY4);
+			        break;
+			        
+			    case 2:
+			    	batch.draw(f_hitTexture3, f_x, f_y + 15, 71 * scaleX3, 119 * scaleY3);
+			        break;
+			        
+			    case 3:
+			        batch.draw(f_hitTexture2, f_x, f_y + 15, 71 * scaleX2, 136 * scaleY2);
+			        break;
+			        
+			    case 4:
+			        
+			        batch.draw(f_hitTexture1, f_x, f_y + 15, 71 * scaleX1, 107 * scaleY1);
+			        break;
+			}
+			
+			
+		}
+	    
+
+	}
+	
+	public void update(float delta) {
+		 f_stateTime += delta;
+	}
+	
+	
+	public boolean throwing(boolean f_throw) {
+		return f_throwing = f_throw;
+	}
+	
+	public void setPositionX(int newX) {
+		f_x = newX;
+	}
+	
+	public void setPositionY(int newY) {
+		f_y = newY;
+	}
+	
+	 public Rectangle getBounds() {
+	    	
+	        return new Rectangle(f_x + 60, f_y - 100, 275 , f_texture.getHeight() );
+	    }
+	 
+	 public void startFighting(boolean fight) {
+		 fightingStance = fight;
+	 }
+	 
+	  public int getHealth() {
+		  return health;
+	  }
+	  
+	  public void decreaseHealth() {
+		  health --;
+		  gotDamaged = true;
+	  }
+	
+	//if playerlose start laughing
+	//after falling hit his stomach
+	
+	public void dispose() {
+		f_texture.dispose();
+		for(TextureRegion frame : f_gorillaAnimation.getKeyFrames()) {
+			frame.getTexture().dispose();
+		}
+		
+		for(Texture texture : f_animationTexture) {
+			if(texture!=null) {
+				texture.dispose();
+			}
+		}
+	}
+}
