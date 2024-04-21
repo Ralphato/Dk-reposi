@@ -27,7 +27,7 @@ public class Whip {
     private boolean f_xPressed;
     private boolean f_getBounds;
     private float f_stateTime;
-    
+    private boolean f_start, f_end, f_win;
     private Texture[] f_animationTexture;
 	private Animation<TextureRegion> f_whipAnimation;
 	
@@ -81,9 +81,19 @@ public class Whip {
         f_hitSound = Gdx.audio.newSound(Gdx.files.internal("whip-sound.mp3"));
         
     }
-    
+    public void setWStart(boolean state) {
+    	f_start = state;
+    }
+    public void setWEnd(boolean state) {
+    	f_end = state;
+    }
+	public void setWWin(boolean state) {
+		f_win = state;
+	}
+
     public void update(float delta) {
     	 f_getBounds = false;
+    	 if(f_start && !(f_end||f_win)) {
      if (Gdx.input.isKeyPressed(Input.Keys.X)) {
     	 //System.out.println(" x is Pressed");
     	 f_xPressed = true;
@@ -123,7 +133,7 @@ public class Whip {
      }
      
     
-     
+    	 }
      f_stateTime += delta;
     }
 
