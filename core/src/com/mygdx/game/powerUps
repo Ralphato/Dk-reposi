@@ -31,6 +31,9 @@ public class powerUps extends Player {
 		this.f_bounds = new Rectangle (f_itemX+10,f_itemY,f_itemWidth-10,f_itemHeight);
 		texturize();
 	}
+	public void updateBounds() {
+		this.f_bounds = new Rectangle (f_itemX+10,f_itemY,f_itemWidth-10,f_itemHeight);
+	}
 	public Rectangle getBounds() {
 		return f_bounds;
 	}
@@ -47,10 +50,10 @@ public class powerUps extends Player {
 	public void collide() {
 		
 			if(this.f_powerNum==1) {
-				teleport();
+				numReturn();
 				
 			}else if (this.f_powerNum==2) {
-				immunity();
+				numReturn();
 			}else if (this.f_powerNum==3) {
 				System.out.println("Heheheha\nHeheheha\nHeheheha");
 			
@@ -68,33 +71,15 @@ public class powerUps extends Player {
 	public float getYPosition() {
 		return f_itemY;
 	}
-	private void teleport() {
-		f_usesLeft=3;
-	while(f_usesLeft>0) {
-	if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
-		setPosition(getPositionY()+200,getPositionX());
-		f_usesLeft--;    	
-    }
-    if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
-    	setPosition(getPositionY()-200,getPositionX());
-    	f_usesLeft--;
-    } 
-    if(Gdx.input.isKeyJustPressed(Input.Keys.D)&&f_x+200<=1200) {
-    	setPosition(getPositionX()+200,getPositionY());
-    	f_usesLeft--;    	
-    }
-    if(Gdx.input.isKeyJustPressed(Input.Keys.A)&&f_x-200>=0) {
-    	setPosition(getPositionX()-200,getPositionY());
-    	f_usesLeft--;
-    } 
+	int numReturn() {
+		 return this.f_powerNum;
 		}
-		}
-		private void immunity() {
-			//TODO make player health and interactions
-			System.out.println("Can't touch this");
-		}
+		
 		public void changeYPos(int change) {
 			this.f_itemY+=change;
+		}
+		public void changeXPos(int change) {
+			this.f_itemX+=change;
 		}
 
 		public void dispose() {
