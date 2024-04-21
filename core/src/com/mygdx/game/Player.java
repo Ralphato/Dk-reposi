@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -57,7 +58,9 @@ public class Player {
     private boolean f_stopClimbingUp;
     private boolean f_lol;
     private int f_health;
-    Whip playerWhip; 
+    Sound sound = Gdx.audio.newSound(Gdx.files.internal("maro-jump-sound-effect_1.mp3"));
+
+  //  Whip playerWhip; 
     /**
      * Initializes a new instance of the Player class.
      */
@@ -69,7 +72,7 @@ public class Player {
 
         f_textureClimb = new Texture("climb1.png");
         f_climbDown = new Texture("climbDown.png");
-        f_textureWhip = new Texture("whip1.png");
+       // f_textureWhip = new Texture("whip1.png");
         
         f_x = 100;
         f_y = 100;
@@ -134,7 +137,11 @@ public class Player {
     public int decreaseHealth(int x) {
     	return f_health -= x;
     }
-    
+    public void shielded() {
+    	if(f_health<=3) {
+    			f_health+=3;
+    }
+    }
     public void setPosition(float x, float y) {
     	this.f_x = x;
     	this.f_y = y;
@@ -228,7 +235,7 @@ public class Player {
      */
     public void update(float delta) {
     	
-    	
+    	System.out.println(getHealth());
      	if (this.f_climbing) {
     		//System.out.println("Entered if statement");
             // The player is climbing
@@ -317,7 +324,9 @@ public class Player {
     	
 	
 	        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !f_jumping) {
+	            sound.play(.3f);
 	            jump();
+	        	
 	        }
 	        if (f_jumping) {
 	            f_yVelocity -= 0.5f;
@@ -335,13 +344,13 @@ public class Player {
 	            }
 	        }
 	           
-	        if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
+	      /*  if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
 	        	f_y+=200;
 	        	f_jumping=true;
 	        }
 	        if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
 	        	f_y-=200;
-	        } 
+	        } */
 	        
 	        //out of bounds checking
 			if(f_x>=1200) {
@@ -456,7 +465,9 @@ public class Player {
 		    	batch.draw(currentFrame, f_x + f_texture.getWidth() * f_scaleX, f_y, -f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 		    	f_idleRight = true;
 
-	    	 }  	
+	    	 } 
+	    	 
+	    	 
 	    	
 	    }
 
