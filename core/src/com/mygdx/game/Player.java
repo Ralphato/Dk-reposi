@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import org.junit.jupiter.api.Test;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
@@ -30,6 +29,7 @@ public class Player {
     private Texture f_climbDown;
     private Texture[] f_animationTexture;
     private Texture[] f_animationTextureClimbing;
+    private Texture[] f_animationTextureDeath;
     protected float f_x;
 	protected float f_y;
     private float f_scaleX, f_scaleY;
@@ -44,6 +44,7 @@ public class Player {
     private boolean f_idleLeft = false;
     private Animation<TextureRegion> f_runAnimation;
     private Animation<TextureRegion> f_climbAnimation;
+    private Animation<TextureRegion> f_deathAnimation;
     private float f_stateTime;
     private Platform f_currentPlatform;
     private boolean checkIfColliding;
@@ -57,6 +58,7 @@ public class Player {
     private boolean f_stopClimbingDown;
     private boolean f_stopClimbingUp;
     private boolean f_lol;
+    private boolean f_isDead;
     private int f_health;
     Sound sound = Gdx.audio.newSound(Gdx.files.internal("maro-jump-sound-effect_1.mp3"));
 
@@ -111,6 +113,17 @@ public class Player {
         f_climbAnimation = new Animation<TextureRegion>(0.4f, climbFrames);
         
         f_stateTime = 0f;
+        
+      //death animation
+        f_animationTextureDeath = new Texture[FRAME_COUNT];
+        TextureRegion[] DeathFrames = new TextureRegion[FRAME_COUNT];
+        for (int i = 0; i < FRAME_COUNT; i++) {
+            String frameName = "death" + (i + 1) + ".png";
+            f_animationTextureDeath[i] = new Texture(frameName);
+            runFrames[i] = new TextureRegion(f_animationTextureDeath[i]);
+            
+        }
+        f_deathAnimation = new Animation<TextureRegion>(0.1f, runFrames);
     }
 
     
@@ -137,7 +150,15 @@ public class Player {
     }
     
     public int decreaseHealth(int x) {
-    	return f_health -= x;
+    	f_health -= x;
+    	f_yVelocity = 8;
+    	f_jumping= true;
+    	f_isFalling = true;
+    	if (x <= 0) {
+        	f_isDead = true;
+    	MyGdxGame.f_endGame = true;}
+    	return f_health;
+    	
     }
     public void shielded() {
     	if(f_health<=3) {

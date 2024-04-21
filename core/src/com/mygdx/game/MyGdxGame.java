@@ -28,6 +28,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Input;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.assets.AssetManager;
 /**
@@ -75,7 +76,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private Texture f_gameOverTexture;
     private Texture f_shieldTexture;
     private Texture f_lifeTexture;
-    private boolean f_endGame;
+    static boolean f_endGame;
     private boolean f_removeBarrel3 = false;
     Whip playerWhip;
     private float f_whipX, f_whipY;
@@ -374,7 +375,6 @@ public class MyGdxGame extends ApplicationAdapter {
         	f_batch.draw(new Texture("1.png"),worldWidth-80,worldHeight-180, 80, 80);
         }
         if(f_endGame) {
-        	
             f_batch.setColor(1, 1, 1, 1);  // Set semi-transparency for the game over texture
             f_batch.draw(f_gameOverTexture, 0, 0, worldWidth, worldHeight);
             
@@ -1177,7 +1177,6 @@ public class MyGdxGame extends ApplicationAdapter {
                     // Check player's health status
                     if (f_player.getHealth() <= 0) {
                        // endGame(); // Implement this method based on your game's needs
-                    	f_endGame = true;
                     	changeMusic("zehahaha_laugh.mp3");
                         return; // Exit the method if the player is removed
                     }
