@@ -51,11 +51,11 @@ public class Barrel2 {
     	//System.out.println("This is y postion: "+ position.y);
     	 if (!isOnGround) {
     		 if(isWithinLadder) {
-    			 System.out.println("Applying ladder velo");
+    			 //System.out.println("Applying ladder velo");
              velocity.y = 400;
     		 }
     		 else {
-    			 System.out.println("LOOLS");
+    			 //System.out.println("LOOLS");
     			 velocity.y += gravity * deltaTime;
     		 }
          } else {
