@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -15,6 +17,9 @@ public class gameScreen implements Screen {
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, worldWidth, worldHeight); // Example dimensions
+        
+     
+        
     }
 
     @Override
@@ -22,7 +27,7 @@ public class gameScreen implements Screen {
         camera.update();
         game.getSpriteBatch().setProjectionMatrix(camera.combined);
 
-        // Additional rendering code
+        
     }
     
   
