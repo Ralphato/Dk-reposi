@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -25,7 +26,7 @@ public class Player {
     private Texture f_textureFall;
     private Texture f_textureWhip;
     private Texture f_textureClimb;
-    
+    private boolean f_gameStart, f_gameEnd, f_gameWin;
     private Texture f_climbDown;
     private Texture[] f_animationTexture;
     private Texture[] f_animationTextureClimbing;
@@ -57,7 +58,9 @@ public class Player {
     private boolean f_stopClimbingUp;
     private boolean f_lol;
     private int f_health;
-    Whip playerWhip; 
+    Sound sound = Gdx.audio.newSound(Gdx.files.internal("maro-jump-sound-effect_1.mp3"));
+
+  Whip playerWhip; 
     /**
      * Initializes a new instance of the Player class.
      */
@@ -69,7 +72,7 @@ public class Player {
 
         f_textureClimb = new Texture("climb1.png");
         f_climbDown = new Texture("climbDown.png");
-        f_textureWhip = new Texture("whip1.png");
+       f_textureWhip = new Texture("whip1.png");
         
         f_x = 100;
         f_y = 100;
@@ -91,6 +94,7 @@ public class Player {
             String frameName = "run" + (i + 1) + ".png";
             f_animationTexture[i] = new Texture(frameName);
             runFrames[i] = new TextureRegion(f_animationTexture[i]);
+            
         }
         f_runAnimation = new Animation<TextureRegion>(0.1f, runFrames);
         
@@ -99,7 +103,8 @@ public class Player {
         f_animationTextureClimbing = new Texture[FRAME_COUNT]; //array of Texture
         TextureRegion[] climbFrames = new TextureRegion[FRAME_COUNT]; //array of Texture region
         for (int i = 0; i < FRAME_COUNT; i++) {
-            String frameName2 = "climb" + (i + 1) + ".png";
+        	
+        		String frameName2 = "climb" + (i + 1) + ".png";
             f_animationTextureClimbing[i] = new Texture(frameName2);
             climbFrames[i] = new TextureRegion(f_animationTextureClimbing[i]);
         }
@@ -134,7 +139,11 @@ public class Player {
     public int decreaseHealth(int x) {
     	return f_health -= x;
     }
-    
+    public void shielded() {
+    	if(f_health<=3) {
+    			f_health+=3;
+    }
+    }
     public void setPosition(float x, float y) {
     	this.f_x = x;
     	this.f_y = y;
@@ -226,9 +235,18 @@ public class Player {
      *
      * @param delta Time since last game frame.
      */
+    public void setStart(boolean state) {
+    	f_gameStart = state;
+    }
+    public void setEnd(boolean state) {
+    	f_gameEnd = state;
+    }
+    public void setWin(boolean state) {
+    	f_gameWin = state;
+    }
     public void update(float delta) {
-    	
-    	
+    	if(f_gameStart&&!(f_gameEnd||f_gameWin)) {
+    	System.out.println(getHealth());
      	if (this.f_climbing) {
     		//System.out.println("Entered if statement");
             // The player is climbing
@@ -250,7 +268,7 @@ public class Player {
                 f_climbingDown = false;
                 f_idleRight = false;
                 f_idleLeft = false;
-                f_climbingNoMove = false;
+                f_climbingNoMove = false;                	
             } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && !f_stopClimbingDown) {
                 f_y -= 5;  // Climbing d
                 f_climbingDown = true;
@@ -317,7 +335,9 @@ public class Player {
     	
 	
 	        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !f_jumping) {
+	            sound.play(.3f);
 	            jump();
+	        	
 	        }
 	        if (f_jumping) {
 	            f_yVelocity -= 0.5f;
@@ -335,13 +355,13 @@ public class Player {
 	            }
 	        }
 	           
-	        if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
+	      /*  if(Gdx.input.isKeyJustPressed(Input.Keys.W)&&f_y+200<=1200) {
 	        	f_y+=200;
 	        	f_jumping=true;
 	        }
 	        if(Gdx.input.isKeyJustPressed(Input.Keys.S)&&f_y-200>=0) {
 	        	f_y-=200;
-	        } 
+	        } */
 	        
 	        //out of bounds checking
 			if(f_x>=1200) {
@@ -381,10 +401,10 @@ public class Player {
 	        
     	}
     		
-	        
+	    }    
 	        f_stateTime += delta;
 	    }
-
+    
     /**
      * Draws the player on the screen.
      *
@@ -395,13 +415,16 @@ public class Player {
 	    	
 	    	
 	    	 if (f_idleRight) {
+	    		 
 	    		 batch.draw(f_texture, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 	    	 }
 	    	 else if(f_idleLeft) {
+	    		
 	    		 batch.draw(f_texture, f_x + f_texture.getWidth() * f_scaleX, f_y, -f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 	    	 }
 	    	 
 	    	 if(f_isFalling) {
+	    		 
 	    		 batch.draw(f_textureFall, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 	    	 }
 	    	 
@@ -421,15 +444,19 @@ public class Player {
 	    		 if(f_climbingNoMove) {
 	    		 batch.draw(f_textureClimb, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
 	    		 }
-	    		 if(f_climbingUp) {
+	    		 
+	    		 /*if(f_health>3&&f_health<=6&&f_climbingDown) {
+		    		 f_climbDown = new Texture("climbDownS.png");
+		    		 batch.draw(f_climbDown, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);				    
+		    	 }else */if(f_climbingUp) {
 		    		 TextureRegion currentFrame = f_climbAnimation.getKeyFrame(f_stateTime, true);
 				     batch.draw(currentFrame, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
 				     
 		    	 }
 	    		 
-	    		 if(f_climbingDown) {
-		    		 
-				     batch.draw(f_climbDown, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
+	    		 if(f_climbingDown) { 
+		    		
+		    		 batch.draw(f_climbDown, f_x, f_y, f_texture.getWidth() * f_scaleXClimb, f_texture.getHeight() * f_scaleYClimb);
 		    	 }
 	    		 
 	    		 
@@ -456,7 +483,9 @@ public class Player {
 		    	batch.draw(currentFrame, f_x + f_texture.getWidth() * f_scaleX, f_y, -f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
 		    	f_idleRight = true;
 
-	    	 }  	
+	    	 } 
+	    	 
+	    	 
 	    	
 	    }
 
