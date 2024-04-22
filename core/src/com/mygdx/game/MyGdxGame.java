@@ -114,7 +114,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_batch = new SpriteBatch();
         f_gameScreen = new gameScreen(this);
         f_player = new Player();
-        f_donkey = new donkeyKong();
+        f_donkey = new donkeyKong(f_gameScreen);
         f_assetManager = new AssetManager();
         f_assetManager.load("zehahaha_laugh.mp3", Music.class);
         f_assetManager.finishLoading(); // Typically called in the loading screen logic
@@ -158,7 +158,7 @@ public class MyGdxGame extends ApplicationAdapter {
         Texture ladderTexture = new Texture("ladder.png");
         
         barrel1Texture = new Texture("barrel1.png");
-        barrel2Texture = new Texture("barrel1.png");
+        barrel2Texture = new Texture("barrel2.png");
 
         // First row of platforms
         for(int i = 0; i <= 1200; i+= 100) {
@@ -319,8 +319,9 @@ public class MyGdxGame extends ApplicationAdapter {
     	f_gameScreen.render(Gdx.graphics.getDeltaTime());
         clearScreen();
         f_player.update(Gdx.graphics.getDeltaTime());
-       
+       if(f_startGame) {
         f_donkey.update(Gdx.graphics.getDeltaTime());
+       }
         playerWhip.update(Gdx.graphics.getDeltaTime());
         f_blood.update(Gdx.graphics.getDeltaTime());
         f_blood2.update(Gdx.graphics.getDeltaTime());
@@ -408,7 +409,7 @@ public class MyGdxGame extends ApplicationAdapter {
         checkWhipKongCollisions();
         
         scheduleBarrelSpawning();
-        //scheduleBarrelSpawning2();
+        scheduleBarrelSpawning2();
         scheduleBarrelSpawning3();
         f_startBarrel = false;     
 
@@ -500,7 +501,7 @@ public class MyGdxGame extends ApplicationAdapter {
     
     }
     private void startFighting() {
-    	if(f_player.getPositionX() <= 400 && f_player.getPositionY() >= 1170) {
+    	if(f_player.getPositionY() >= 1100) {
     		f_donkey.startFighting(true);
     	}
     }
@@ -619,12 +620,12 @@ public class MyGdxGame extends ApplicationAdapter {
                     Timer.schedule(new Task() {
                         @Override
                         public void run() {
-                          //  f_donkey.throwing(false);
+                            f_donkey.throwing(false);
                         }
                     }, 0.7f); // Delay in seconds after which to set throwing to false
                 }
             }
-        }, 0, 3, 20); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
+        }, 6, 3, 20); // Start delay (0 seconds), interval between spawns (5 seconds), number of repetitions (20)
     }
     	}
 
@@ -660,7 +661,7 @@ public class MyGdxGame extends ApplicationAdapter {
                  
                 }
             }
-        }, 0, 2.99f, 20); //4.99 delay is used here instead of 5 to allow sheduleBarrelSpawning1 to set removeBarrel3 to true
+        }, 6, 2.99f, 20); //4.99 delay is used here instead of 5 to allow sheduleBarrelSpawning1 to set removeBarrel3 to true
     }
     }
     public void loadPrevious() {
