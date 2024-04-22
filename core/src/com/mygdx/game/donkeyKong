@@ -148,9 +148,9 @@ public class donkeyKong {
 	                public void run() {
 	                    hitStomach = false; // Set the hitStomach flag back to false after 3 seconds
 	                }
-	            }, 1.5f); // Delay in seconds before the flag is set back to false
+	            }, 2.5f); // Delay in seconds before the flag is set back to false
 	        }
-	    }, 0.5f, 16, 20); // Start delay (10 seconds), interval between triggers (20 seconds), number of repetitions 
+	    }, 1.5f, 16, 20); // Start delay (10 seconds), interval between triggers (20 seconds), number of repetitions 
 		}
 	}
 	
@@ -170,7 +170,7 @@ public class donkeyKong {
 	}
 	
 	public void draw(SpriteBatch batch) {
-		 
+		 if(!f_startLaugh) {
 		if(isFalling) {
 			batch.draw(f_textureFalling, f_x - 100, f_y, f_textureThrowing.getWidth() * f_scaleX * 2, f_textureThrowing.getHeight() * f_scaleY * 2);
 			System.out.println("DRAWING");
@@ -194,28 +194,8 @@ public class donkeyKong {
 				 else {
 				 batch.draw(f_texture, f_x, f_y - 15, f_textureThrowing.getWidth() * f_scaleX * 1.15f, f_textureThrowing.getHeight() * f_scaleY * 1.15f);
 				 }
-			}
-			 
+			}			 
 			
-			if(f_startLaugh) {
-				if(f_runAnimation) {
-					batch.draw(f_textureLaughing, f_x, 750, f_texture.getWidth() / 4, f_texture.getHeight() / 4);
-					Timer.schedule(new Task() {
-			            @Override
-			            public void run() {
-			            
-			            	f_runAnimation = false; //waits 1 second and then calls this
-			            
-			            	
-			            }
-			        }, 1); 	
-				}
-				
-				else {
-				TextureRegion currentFrame = f_gorillaAnimation.getKeyFrame(f_stateTime /1, true);
-			    batch.draw(currentFrame, f_x, 750, f_texture.getWidth(), f_texture.getHeight());
-				}
-			}
 		 }
 		 
 		 else if(fightingStance) {
@@ -253,6 +233,27 @@ public class donkeyKong {
 			
 		}
 		}
+		 }
+		 
+		 else if(f_startLaugh) {
+				if(f_runAnimation) {
+					batch.draw(f_textureLaughing, f_x, 750, f_texture.getWidth() / 4, f_texture.getHeight() / 4);
+					Timer.schedule(new Task() {
+			            @Override
+			            public void run() {
+			            
+			            	f_runAnimation = false; //waits 1 second and then calls this
+			            
+			            	
+			            }
+			        }, 1); 	
+				}
+				
+				else {
+				TextureRegion currentFrame = f_gorillaAnimation.getKeyFrame(f_stateTime /1, true);
+			    batch.draw(currentFrame, f_x, 750, f_texture.getWidth() / 4, f_texture.getHeight() / 4);
+				}
+			}
 	    
 
 	}
