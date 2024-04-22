@@ -59,7 +59,8 @@ public class MyGdxGame extends ApplicationAdapter {
     private boolean f_jumping;
     private boolean f_finishedClimbing;
     private boolean f_climbingUp;
-    private boolean teleport=false, shield=false;
+    private boolean teleport=false;
+    public static boolean shield=false;
     private OrthographicCamera camera;
     Ladder ladder1, ladder2, ladder3, ladder4, ladder5;
     private gameScreen f_gameScreen;
@@ -79,7 +80,9 @@ public class MyGdxGame extends ApplicationAdapter {
     static boolean f_endGame;
     private boolean f_removeBarrel3 = false;
     Whip playerWhip;
+    Shield playershield;
     private float f_whipX, f_whipY;
+    private float f_ShieldX, f_ShieldY;
     private GLProfiler profiler;
     private int f_usesLeft=0, f_hitsLeft=0;
     private boolean f_active=false,f_tActive;
@@ -141,6 +144,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_lifeTexture = new Texture("mario sprite.png");
         initialize();
         playerWhip = new Whip(f_player.getPositionX(), f_player.getPositionY(), 50, 5, "whip1.png");
+        playershield = new Shield(f_player.getPositionX(), f_player.getPositionY(), 0, 0);
         f_blood = new BloodSplatter(0.1f, 1);
         f_blood2 = new BloodSplatter(0.1f, 2);
        // playerWhip = new Whip(f_player.getPositionX(), f_player.getPositionY(), 50, 5, "whip1.png");
@@ -311,7 +315,7 @@ public class MyGdxGame extends ApplicationAdapter {
     	if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
       		 f_startGame = true;
       		 f_startBarrel = true;
-      		 f_donkey.start(true);
+      		 f_donkey = new donkeyKong(f_gameScreen);
       	 }
     	 profiler.reset();
 
@@ -320,9 +324,10 @@ public class MyGdxGame extends ApplicationAdapter {
     	f_gameScreen.render(Gdx.graphics.getDeltaTime());
         clearScreen();
         f_player.update(Gdx.graphics.getDeltaTime());
-       if(f_startGame) {
-        f_donkey.update(Gdx.graphics.getDeltaTime());
-       }
+       
+        if(f_startGame) {
+            f_donkey.update(Gdx.graphics.getDeltaTime());
+           }
         playerWhip.update(Gdx.graphics.getDeltaTime());
         f_blood.update(Gdx.graphics.getDeltaTime());
         f_blood2.update(Gdx.graphics.getDeltaTime());
@@ -367,6 +372,14 @@ public class MyGdxGame extends ApplicationAdapter {
         
         
         renderWhip();
+        if (shield) {
+        	playershield.update(Gdx.graphics.getDeltaTime());
+        	playershield.setWEnd(f_endGame);
+            playershield.setWWin(f_winUI);
+            playershield.setWStart(shield = true);
+        	renderShield();
+        	
+        }
         
         f_player.draw(f_batch);
         f_donkey.draw(f_batch);
@@ -564,6 +577,15 @@ public class MyGdxGame extends ApplicationAdapter {
     	playerWhip.draw(f_batch);
     	
     }
+private void renderShield() {
+    	
+    	
+    	f_ShieldX = f_player.getPositionX();
+    	f_ShieldY = f_player.getPositionY();
+    	playershield.getPlayerPosition(f_ShieldX, f_ShieldY); //send player's positions to Shield class
+    	playershield.draw(f_batch);
+    	
+    }
     
     private void updateBarrels() {
     	 // Use an Iterator to safely remove elements while iterating
@@ -621,7 +643,7 @@ public class MyGdxGame extends ApplicationAdapter {
                     Timer.schedule(new Task() {
                         @Override
                         public void run() {
-                            f_donkey.throwing(false);
+                          f_donkey.throwing(false);
                         }
                     }, 0.7f); // Delay in seconds after which to set throwing to false
                 }
