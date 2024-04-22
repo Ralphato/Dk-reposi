@@ -32,6 +32,7 @@ public class donkeyKong {
 	private boolean startFalling = true;
 	private boolean shakeScreen = false;
 	private boolean hitStomach = false;
+	private boolean start_game = false;
 	private gameScreen screen;
 	
 	float targetWidth = 136;
@@ -129,12 +130,13 @@ public class donkeyKong {
         }
         f_stomachAnimation = new Animation<TextureRegion>(0.1f, runFrames3);
         
-        punchStomach();
+       
         
 	}
 	
 	public void punchStomach() {
 	    // This timer task will set hitStomach to true and then schedule another task to set it to false after 3 seconds
+		if(start_game) {
 	    Timer.schedule(new Task(){
 	        @Override
 	        public void run() {
@@ -148,7 +150,8 @@ public class donkeyKong {
 	                }
 	            }, 1.5f); // Delay in seconds before the flag is set back to false
 	        }
-	    }, 2.5f, 16, 20); // Start delay (10 seconds), interval between triggers (20 seconds), number of repetitions 
+	    }, 0.5f, 16, 20); // Start delay (10 seconds), interval between triggers (20 seconds), number of repetitions 
+		}
 	}
 	
 	
@@ -196,7 +199,7 @@ public class donkeyKong {
 			
 			if(f_startLaugh) {
 				if(f_runAnimation) {
-					batch.draw(f_textureLaughing, f_x, 750, f_texture.getWidth(), f_texture.getHeight());
+					batch.draw(f_textureLaughing, f_x, 750, f_texture.getWidth() / 4, f_texture.getHeight() / 4);
 					Timer.schedule(new Task() {
 			            @Override
 			            public void run() {
@@ -218,7 +221,7 @@ public class donkeyKong {
 		 else if(fightingStance) {
 			 //make animation
 			 TextureRegion currentFrame2 = f_stanceAnimation.getKeyFrame(f_stateTime / 5, true);
-			 batch.draw(currentFrame2, f_x, 1090, f_texture.getWidth()/3, f_texture.getHeight()/3);
+			 batch.draw(currentFrame2, f_x, 1090, f_texture.getWidth()/6, f_texture.getHeight()/6);
 		 }
 		 
 		
@@ -296,9 +299,10 @@ public class donkeyKong {
 			 shakeScreen = false;
 			 
 		 }
-		 
+		 punchStomach();
+		 start_game = false;
 
-		 
+		 //start_game = false; //only make 1 task scheduler from hitting stomach
 		 f_stateTime += delta;
 
 	}
@@ -322,6 +326,9 @@ public class donkeyKong {
 		f_y = newY;
 	}
 	
+	public void start(boolean startGame) {
+		start_game = startGame;
+	}
 	 public Rectangle getBounds() {
 	    	
 	        return new Rectangle(f_x + 60, f_y - 100, 275 , f_texture.getHeight() );
