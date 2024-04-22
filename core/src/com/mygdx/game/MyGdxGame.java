@@ -315,7 +315,7 @@ public class MyGdxGame extends ApplicationAdapter {
     	if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
       		 f_startGame = true;
       		 f_startBarrel = true;
-      		 f_donkey = new donkeyKong(f_gameScreen);
+      		 f_donkey.start(true);
       	 }
     	 profiler.reset();
 
