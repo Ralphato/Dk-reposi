@@ -79,8 +79,8 @@ public class Player {
 
         f_textureClimb = new Texture("climb1.png");
         f_climbDown = new Texture("climbDown.png");
-       f_textureWhip = new Texture("MarioNazi1.png");
-       f_textureWhip2 = new Texture("MarioNazi2.png");
+       f_textureWhip = new Texture("MarioArm1.png");
+       f_textureWhip2 = new Texture("MarioArm2.png");
         
         f_x = 100;
         f_y = 100;
