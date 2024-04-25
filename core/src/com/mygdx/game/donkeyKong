@@ -26,7 +26,7 @@ public class donkeyKong {
 	private Animation<TextureRegion> f_gorillaAnimation, f_stanceAnimation, f_stomachAnimation;
 	private boolean f_runAnimation = true;
 	private boolean f_startLaugh = false;
-	private int health = 5;
+	private int health = 3;
 	private boolean gotDamaged;
 	private boolean fightingStance = false; //true for testing
 	private boolean startFalling = true;
@@ -71,10 +71,11 @@ public class donkeyKong {
 		f_textureLaughing = new Texture("laugh2.png");
 		
 		//getting hit textures
-		f_hitTexture1 = new Texture("hitTextures/hit2.png");
-		f_hitTexture2 = new Texture("hitTextures/hit2.png");
-		f_hitTexture3 = new Texture("hitTextures/hit3.png");
-		f_hitTexture4 = new Texture("hitTextures/hit4.png");
+		f_hitTexture1 = new Texture("hitTextures/FirstHitDK.png");
+		f_hitTexture2 = new Texture("hitTextures/SecondHitDK.png");
+		f_hitTexture3 = new Texture("hitTextures/FinalHitDK.png");
+		
+		//f_hitTexture4 = new Texture("hitTextures/hit4.png");
 		
 		f_textureFalling = new Texture("AngryDonkeyKongFinal.png");
 		
@@ -211,22 +212,19 @@ public class donkeyKong {
 		else if(gotDamaged) {
 			switch(health) {
 			 case 1:
-				 	batch.draw(f_hitTexture4, f_x, f_y + 15, 89 * scaleX4 * 2, 131 * scaleY4 * 2);
+				 	batch.draw(f_hitTexture3, f_x, f_y + 15, 89 * scaleX4 * 2, 131 * scaleY4 * 2);
 				 	
 			        break;
 			        
 			    case 2:
-			    	batch.draw(f_hitTexture3, f_x, f_y + 15, 71 * scaleX3 * 2, 119 * scaleY3 * 2);
+			    	batch.draw(f_hitTexture2, f_x, f_y + 15, 71 * scaleX3 * 2, 119 * scaleY3 * 2);
 			        break;
 			        
 			    case 3:
-			        batch.draw(f_hitTexture2, f_x, f_y + 15, 71 * scaleX2 * 2, 136 * scaleY2 * 2);
+			        batch.draw(f_hitTexture1, f_x, f_y + 15, 71 * scaleX2 * 2, 136 * scaleY2 * 2);
 			        break;
 			        
-			    case 4:
-			        
-			        batch.draw(f_hitTexture1, f_x, f_y + 15, 71 * scaleX1 * 2, 107 * scaleY1 * 2);
-			        break;
+			    
 			}
 			
 			
