@@ -331,10 +331,10 @@ public class MyGdxGame extends ApplicationAdapter {
         f_blood.draw(f_batch, 0, 1000);
         f_blood2.draw(f_batch, 0, 1000);
         lifeSys(oldHealth);
-        for(int i = 0; i<f_usesLeft;i++) {
-        	f_batch.draw(new Texture("1.png"),worldWidth-80,worldHeight-180, 250, 250);
-        }
+        
         if(f_endGame) {
+        	 
+        	
             f_batch.setColor(1, 1, 1, 1);  // Set semi-transparency for the game over texture
             f_batch.draw(f_gameOverTexture, 0, 0, worldWidth, worldHeight);
             
@@ -1192,7 +1192,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 	hurt=true;
                 }
                 // Check player's health status
-                if (f_player.getHealth() == 0) {
+                if (f_player.getHealth() <= 0) {
                     //endGame(); // Implement this method based on your game's needs
                 	f_endGame = true;
                 	changeMusic("zehahaha_laugh.mp3");
