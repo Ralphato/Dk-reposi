@@ -93,7 +93,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private boolean f_startGame = false;
     private boolean f_startBarrel = false;
     private boolean f_winUI = false;
-
+    private boolean f_toggle = false;
     Shield playershield;
     private float f_ShieldX, f_ShieldY;
     /**
@@ -121,9 +121,15 @@ public class MyGdxGame extends ApplicationAdapter {
         f_assetManager = new AssetManager();
         f_assetManager.load("zehahaha_laugh.mp3", Music.class);
         f_assetManager.finishLoading(); // Typically called in the loading screen logic
-        f_assetManager.load("ADKLOOP.mp3", Music.class);
+        f_assetManager.load("Music/MainMenu.mp3", Music.class);
         f_assetManager.finishLoading();
-        f_BGM = f_assetManager.get("ADKLOOP.mp3", Music.class);
+        f_assetManager.load("Music/StageOneLoop.mp3", Music.class);
+        f_assetManager.finishLoading();
+        f_assetManager.load("Music/WinSFX.mp3", Music.class);
+        f_assetManager.finishLoading();
+        f_assetManager.load("Music/LoseSFX.mp3", Music.class);
+        f_assetManager.finishLoading();
+        f_BGM = f_assetManager.get("Music/MainMenu.mp3", Music.class);
         f_BGM.setVolume(0.3f);
         f_BGM.play();
         f_BGM.setLooping(true);
@@ -140,8 +146,8 @@ public class MyGdxGame extends ApplicationAdapter {
         f_UITexture = new Texture("UI.png");
         f_winUITexture = new Texture("WinUI.png");
         f_gameOverTexture = new Texture("Lose UI.png");
-        f_shieldTexture = new Texture("mario spriteS.png");
-        f_lifeTexture = new Texture("mario sprite.png");
+        f_shieldTexture = new Texture("BlueHeart.png");
+        f_lifeTexture = new Texture("HeartFinal.png");
         initialize();
         playerWhip = new Whip(f_player.getPositionX(), f_player.getPositionY(), 50, 5, "whip1.png");
         f_blood = new BloodSplatter(0.1f, 1);
@@ -163,7 +169,7 @@ public class MyGdxGame extends ApplicationAdapter {
         Texture ladderTexture = new Texture("ladder.png");
         
         barrel1Texture = new Texture("barrel1.png");
-        barrel2Texture = new Texture("barrel2.png");
+        barrel2Texture = new Texture("barrel1.png");
 
         // First row of platforms
         for(int i = 0; i <= 1200; i+= 100) {
@@ -239,8 +245,13 @@ public class MyGdxGame extends ApplicationAdapter {
      */
     @Override
     public void render() {
-    	if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-      		 f_startGame = true;
+    	if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)&&!f_startGame) {
+      		f_BGM.stop();
+      		f_BGM = f_assetManager.get("Music/StageOneLoop.mp3",Music.class);
+      		f_BGM.setVolume(0.3f);
+      		f_BGM.play();
+      		f_BGM.setLooping(true);
+    		f_startGame = true;
       		 f_startBarrel = true;
       		 f_donkey.start(true);
       	 }
@@ -277,6 +288,13 @@ public class MyGdxGame extends ApplicationAdapter {
     	}
 
        if(f_winUI) {
+    	   if(!f_toggle) {
+    		   f_BGM.stop();
+    		   f_BGM = f_assetManager.get("Music/WinSFX.mp3", Music.class);
+    		   f_BGM.setVolume(0.3f);
+    		   f_BGM.play();
+    		   f_toggle = true;
+    	   }
     	   f_batch.draw(f_winUITexture, 0, 20, worldWidth, worldHeight);
     	   f_batch.end();
        }
@@ -314,7 +332,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_blood2.draw(f_batch, 0, 1000);
         lifeSys(oldHealth);
         for(int i = 0; i<f_usesLeft;i++) {
-        	f_batch.draw(new Texture("1.png"),worldWidth-80,worldHeight-180, 80, 80);
+        	f_batch.draw(new Texture("1.png"),worldWidth-80,worldHeight-180, 250, 250);
         }
         if(f_endGame) {
             f_batch.setColor(1, 1, 1, 1);  // Set semi-transparency for the game over texture
@@ -1174,7 +1192,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 	hurt=true;
                 }
                 // Check player's health status
-                if (f_player.getHealth() <= 0) {
+                if (f_player.getHealth() == 0) {
                     //endGame(); // Implement this method based on your game's needs
                 	f_endGame = true;
                 	changeMusic("zehahaha_laugh.mp3");
@@ -1348,36 +1366,36 @@ public class MyGdxGame extends ApplicationAdapter {
          GameUtils.saveGameState(gameState);
     }
     private void lifeSys(int oldHP) {
-    	 int spacer = 80;
+    	 int spacer = 170;
          int oldHealth = oldHP;
      for(int i = 0;f_player.getHealth()-1 >=i; i++) {
      	if(!hurt&&shield) {
      		if(i>2) {
-     		f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     		f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-170, 250, 250);
      		spacer+=80;
      	}else {
-     		f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     		f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-170, 250, 250);
      		spacer+=80;
      	}
      	}else if (hurt&&shield) {
      		if(i<oldHealth) {
-     			f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     			f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-170, 250, 250);
          		spacer+=80;
      		}else {
-     			f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     			f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-170, 250, 250);
          		spacer+=80;
      		}
      	}else if(hurt && !shield) {
      		if(i<=oldHealth) {
-     			f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     			f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-170, 250, 250);
          		spacer+=80;
      		}
      	}else {
      		if(i<=3){
-     		f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     		f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-170, 250, 250);
      		spacer+=80;
      		}else {
-     			f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-90, 80, 80);
+     			f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-170, 250, 250);
          		spacer+=80;
      		}
      	}
