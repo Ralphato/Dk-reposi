@@ -332,6 +332,7 @@ public class MyGdxGame extends ApplicationAdapter {
         f_blood2.draw(f_batch, 0, 1000);
         lifeSys(oldHealth);
         
+        
         if(f_endGame) {
         	 
         	
@@ -1229,6 +1230,7 @@ public class MyGdxGame extends ApplicationAdapter {
                     // Check player's health status
                     if (f_player.getHealth() <= 0) {
                        // endGame(); // Implement this method based on your game's needs
+                    	f_endGame=true;
                     	changeMusic("zehahaha_laugh.mp3");
                         return; // Exit the method if the player is removed
                     }
@@ -1368,7 +1370,7 @@ public class MyGdxGame extends ApplicationAdapter {
     private void lifeSys(int oldHP) {
     	 int spacer = 170;
          int oldHealth = oldHP;
-     for(int i = 0;f_player.getHealth()-1 >=i; i++) {
+     for(int i = 0;f_player.getHealth() >i; i++) {
      	if(!hurt&&shield) {
      		if(i>2) {
      		f_batch.draw(f_shieldTexture, worldWidth-spacer, worldHeight-170, 250, 250);
@@ -1386,7 +1388,7 @@ public class MyGdxGame extends ApplicationAdapter {
          		spacer+=80;
      		}
      	}else if(hurt && !shield) {
-     		if(i<=oldHealth) {
+     		if(i<=oldHealth+1) {
      			f_batch.draw(f_lifeTexture, worldWidth-spacer, worldHeight-170, 250, 250);
          		spacer+=80;
      		}
