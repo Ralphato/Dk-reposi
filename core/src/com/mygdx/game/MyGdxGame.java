@@ -117,16 +117,16 @@ public class MyGdxGame extends ApplicationAdapter {
         f_batch = new SpriteBatch();
         f_gameScreen = new gameScreen(this);
         f_player = new Player();
-        f_donkey = new donkeyKong(f_gameScreen);
+        f_donkey = new donkeyKong();
         f_assetManager = new AssetManager();
         f_assetManager.load("zehahaha_laugh.mp3", Music.class);
         f_assetManager.finishLoading(); // Typically called in the loading screen logic
         f_assetManager.load("ADKLOOP.mp3", Music.class);
-        f_assetManager.finishLoading();
-        f_BGM = f_assetManager.get("ADKLOOP.mp3", Music.class);
-        f_BGM.setVolume(0.3f);
-        f_BGM.play();
-        f_BGM.setLooping(true);
+        //f_assetManager.finishLoading();
+        //f_BGM = f_assetManager.get("ADKLOOP.mp3", Music.class);
+        //f_BGM.setVolume(0.3f);
+        //f_BGM.play();
+        //f_BGM.setLooping(true);
         f_platforms = new ArrayList<>();
         f_powerUps = new ArrayList<>();
         f_platformsNoRender = new ArrayList<>();
@@ -162,7 +162,7 @@ public class MyGdxGame extends ApplicationAdapter {
         Texture ladderTexture = new Texture("ladder.png");
         
         barrel1Texture = new Texture("barrel1.png");
-        barrel2Texture = new Texture("barrel2.png");
+        barrel2Texture = new Texture("barrel1.png");
 
         // First row of platforms
         for(int i = 0; i <= 1200; i+= 100) {
@@ -315,7 +315,6 @@ public class MyGdxGame extends ApplicationAdapter {
     	if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
       		 f_startGame = true;
       		 f_startBarrel = true;
-      		 f_donkey.start(true);
       	 }
     	 profiler.reset();
 
@@ -368,7 +367,6 @@ public class MyGdxGame extends ApplicationAdapter {
       }
        renderBarrels();
         updateBarrels();
-        
         
         
         renderWhip();
@@ -561,8 +559,9 @@ public class MyGdxGame extends ApplicationAdapter {
     }
     
     private void renderPowerUps() {
-    	for(powerUps pUp: f_powerUps) {
-    		pUp.render(f_batch);
+    	for(powerUps powerUps1: f_powerUps) {
+    		powerUps1.update(Gdx.graphics.getDeltaTime());
+    		powerUps1.draw(f_batch);
     	}
     		    	
     }
