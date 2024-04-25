@@ -169,7 +169,7 @@ public class MyGdxGame extends ApplicationAdapter {
         Texture ladderTexture = new Texture("ladder.png");
         
         barrel1Texture = new Texture("barrel1.png");
-        barrel2Texture = new Texture("barrel1.png");
+        barrel2Texture = new Texture("barrel2.png");
 
         // First row of platforms
         for(int i = 0; i <= 1200; i+= 100) {
@@ -376,7 +376,7 @@ public class MyGdxGame extends ApplicationAdapter {
         startFighting();
        
         //debugging purposes
-        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        /*ShapeRenderer shapeRenderer = new ShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.RED);
 
@@ -393,8 +393,7 @@ public class MyGdxGame extends ApplicationAdapter {
         shapeRenderer.setColor(Color.GREEN);
         Rectangle whipBounds = playerWhip.getBounds();
         shapeRenderer.rect(whipBounds.x, whipBounds.y, whipBounds.width, whipBounds.height);
-        /*
-        shapeRenderer.setColor(Color.RED);
+               shapeRenderer.setColor(Color.RED);
         for (Platform platform : f_platforms) {
             Rectangle Upperbounds = platform.getUpperBounds();
             shapeRenderer.rect(Upperbounds.x, Upperbounds.y, Upperbounds.width, Upperbounds.height);
@@ -450,9 +449,9 @@ public class MyGdxGame extends ApplicationAdapter {
         
        
         
-       */
+      
     	shapeRenderer.end();
-
+ */
         // Now we can get the number of calls from the GLProfiler instance
         //System.out.println("OpenGL calls this frame: " + profiler.getCalls());
         //System.out.println("Texture bindings this frame: " + profiler.getTextureBindings());
