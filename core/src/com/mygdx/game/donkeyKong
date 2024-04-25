@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -26,7 +27,7 @@ public class donkeyKong {
 	private Animation<TextureRegion> f_gorillaAnimation, f_stanceAnimation, f_stomachAnimation;
 	private boolean f_runAnimation = true;
 	private boolean f_startLaugh = false;
-	private int health = 5;
+	private int health = 3;
 	private boolean gotDamaged;
 	private boolean fightingStance = false; //true for testing
 	private boolean startFalling = true;
@@ -56,7 +57,7 @@ public class donkeyKong {
 	private float initialY;  // Starting Y-coordinate (off-screen)
 	private int targetY, targetY2;   // Ending Y-coordinate (on-screen)
 	private boolean isFalling = true;  // Condition to check if DK should still fall
-	
+	private Sound fallNoise;
 	private boolean isJumping = false;
 	private float jumpSpeed = 200; // Initial speed of the jump
 	private float currentJumpSpeed;
@@ -69,12 +70,12 @@ public class donkeyKong {
 		f_texture = new Texture("DonkeyIdle.png");
 		f_textureThrowing = new Texture("throwingBarrel.png");
 		f_textureLaughing = new Texture("laugh2.png");
-		
+		fallNoise = Gdx.audio.newSound(Gdx.files.internal("DKFall.mp3"));
 		//getting hit textures
-		f_hitTexture1 = new Texture("hitTextures/hit2.png");
-		f_hitTexture2 = new Texture("hitTextures/hit2.png");
-		f_hitTexture3 = new Texture("hitTextures/hit3.png");
-		f_hitTexture4 = new Texture("hitTextures/hit4.png");
+		f_hitTexture1 = new Texture("hitTextures/FirstHitDK.png");
+		f_hitTexture2 = new Texture("hitTextures/SecondHitDK.png");
+		f_hitTexture3 = new Texture("hitTextures/FinalHitDK.png");
+		//f_hitTexture4 = new Texture("hitTextures/hit4.png");
 		
 		f_textureFalling = new Texture("AngryDonkeyKongFinal.png");
 		
@@ -210,20 +211,17 @@ public class donkeyKong {
 		
 		else if(gotDamaged) {
 			switch(health) {
-			 case 1:
-				 	batch.draw(f_hitTexture4, f_x, f_y + 15, 89 * scaleX4 * 2, 131 * scaleY4 * 2);
-				 	
-			        break;
+			
 			        
-			    case 2:
+			    case 1:
 			    	batch.draw(f_hitTexture3, f_x, f_y + 15, 71 * scaleX3 * 2, 119 * scaleY3 * 2);
 			        break;
 			        
-			    case 3:
+			    case 2:
 			        batch.draw(f_hitTexture2, f_x, f_y + 15, 71 * scaleX2 * 2, 136 * scaleY2 * 2);
 			        break;
 			        
-			    case 4:
+			    case 3:
 			        
 			        batch.draw(f_hitTexture1, f_x, f_y + 15, 71 * scaleX1 * 2, 107 * scaleY1 * 2);
 			        break;
@@ -275,11 +273,12 @@ public class donkeyKong {
 		    }
 		 
 		 if (startFalling) {
+			 fallNoise.loop();
+			 fallNoise.play();
 			 System.out.println("FALLING");
 			 f_y = (int) initialY;   // Set initial position off-screen
 			 isFalling = true;
 			 startFalling = false;
-			 
 	        }
 		 
 		 if(gotDamaged) { //instead if beating stomach
@@ -293,6 +292,7 @@ public class donkeyKong {
 		            f_y = (int) targetY;  // Ensure DK does not fall below the target
 		            isFalling = false;  // Stop falling
 		            screen.shakeScreen(2000.0f, 1.0f);  // Trigger screen shake when landing
+		            fallNoise.stop();
 		        }
 		    }
 		 if(shakeScreen) {
