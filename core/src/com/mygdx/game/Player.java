@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 
 
 /**
@@ -23,7 +25,7 @@ public class Player {
     private Texture f_texture;
     private Texture f_textureJump;
     private Texture f_textureFall;
-    private Texture f_textureWhip;
+    private Texture f_textureWhip, f_textureWhip2;
     private Texture f_textureClimb;
     private boolean f_gameStart, f_gameEnd, f_gameWin;
     private Texture f_climbDown;
@@ -42,6 +44,7 @@ public class Player {
     private boolean f_lookingRight = false;
     private boolean f_idleRight = true;
     private boolean f_idleLeft = false;
+    private boolean f_startWhip = false;
     private Animation<TextureRegion> f_runAnimation;
     private Animation<TextureRegion> f_climbAnimation;
     private Animation<TextureRegion> f_deathAnimation;
@@ -60,6 +63,8 @@ public class Player {
     private boolean f_lol;
     private boolean f_isDead;
     private int f_health;
+    private boolean f_canMove = false;
+    
     Sound sound = Gdx.audio.newSound(Gdx.files.internal("maro-jump-sound-effect_1.mp3"));
 
   Whip playerWhip; 
@@ -74,7 +79,8 @@ public class Player {
 
         f_textureClimb = new Texture("climb1.png");
         f_climbDown = new Texture("climbDown.png");
-       f_textureWhip = new Texture("whip1.png");
+       f_textureWhip = new Texture("MarioNazi1.png");
+       f_textureWhip2 = new Texture("MarioNazi2.png");
         
         f_x = 100;
         f_y = 100;
@@ -119,8 +125,8 @@ public class Player {
         TextureRegion[] DeathFrames = new TextureRegion[FRAME_COUNT];
         for (int i = 0; i < FRAME_COUNT; i++) {
             String frameName = "death" + (i + 1) + ".png";
-            f_animationTextureDeath[i] = new Texture(frameName);
-            runFrames[i] = new TextureRegion(f_animationTextureDeath[i]);
+            //f_animationTextureDeath[i] = new Texture(frameName);
+           // runFrames[i] = new TextureRegion(f_animationTextureDeath[i]);
             
         }
         f_deathAnimation = new Animation<TextureRegion>(0.1f, runFrames);
@@ -133,6 +139,11 @@ public class Player {
     /**
      * Causes the player to jump.
      */
+    
+    
+    public void startWhipping(boolean lol) {
+    	f_startWhip = true;
+    }
     
     private void jump() {
         f_yVelocity = 9;
@@ -156,7 +167,8 @@ public class Player {
     	f_isFalling = true;
     	if (x <= 0) {
         	f_isDead = true;
-    	MyGdxGame.f_endGame = true;}
+    	MyGdxGame.f_endGame = true;
+        	}
     	return f_health;
     	
     }
@@ -265,7 +277,31 @@ public class Player {
     public void setWin(boolean state) {
     	f_gameWin = state;
     }
+    
+    public void startMoving() {
+    	  
+    	    	
+    	        Timer.schedule(new Task(){
+    	            @Override
+    	            public void run() {
+    	                
+    	                
+    	                f_canMove = true;
+    	               
+    	            }
+    	        }, 20); //10 seconds delay
+    	    
+    	    
+    }
+    
     public void update(float delta) {
+    	
+    	if(!f_canMove) {
+    		if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
+    			startMoving();	
+    		}
+    	}
+    	
     	if(f_gameStart&&!(f_gameEnd||f_gameWin)) {
     	System.out.println(getHealth());
      	if (this.f_climbing) {
@@ -313,6 +349,7 @@ public class Player {
 	            f_idleRight = true;
 	            f_lookingRight = false;
 	        }
+	        if(f_canMove) {
 	
 	        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 	            f_x -= 200 * delta;
@@ -336,6 +373,7 @@ public class Player {
 	            f_climbingNoMove = false;
 	            //System.out.println("Moving to the right");
 	            //System.out.println("Player position is now: " + f_x);
+	        }
 	        }
 	        
 	        
@@ -436,12 +474,22 @@ public class Player {
 	    	
 	    	
 	    	 if (f_idleRight) {
-	    		 
+	    		 if (Gdx.input.isKeyPressed(Input.Keys.X)) {
+	    			 batch.draw(f_textureWhip, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY); 
+	    			 //System.out.println("Whip animation");
+	    		 }
+	    		 else {
 	    		 batch.draw(f_texture, f_x, f_y, f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+	    		 }
 	    	 }
 	    	 else if(f_idleLeft) {
-	    		
+	    		 if (Gdx.input.isKeyPressed(Input.Keys.X)) {
+	    			 batch.draw(f_textureWhip, f_x + f_texture.getWidth() * f_scaleX, f_y, -f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+	    			 //System.out.println("Whip animation");
+	    		 }
+	    		 else {
 	    		 batch.draw(f_texture, f_x + f_texture.getWidth() * f_scaleX, f_y, -f_texture.getWidth() * f_scaleX, f_texture.getHeight() * f_scaleY);
+	    		 }
 	    	 }
 	    	 
 	    	 if(f_isFalling) {
