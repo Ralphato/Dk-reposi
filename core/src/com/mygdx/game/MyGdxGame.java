@@ -80,9 +80,7 @@ public class MyGdxGame extends ApplicationAdapter {
     static boolean f_endGame;
     private boolean f_removeBarrel3 = false;
     Whip playerWhip;
-    Shield playershield;
     private float f_whipX, f_whipY;
-    private float f_ShieldX, f_ShieldY;
     private GLProfiler profiler;
     private int f_usesLeft=0, f_hitsLeft=0;
     private boolean f_active=false,f_tActive;
@@ -96,6 +94,8 @@ public class MyGdxGame extends ApplicationAdapter {
     private boolean f_startBarrel = false;
     private boolean f_winUI = false;
 
+    Shield playershield;
+    private float f_ShieldX, f_ShieldY;
     /**
      * Initializes the game components.
      */
@@ -117,16 +117,16 @@ public class MyGdxGame extends ApplicationAdapter {
         f_batch = new SpriteBatch();
         f_gameScreen = new gameScreen(this);
         f_player = new Player();
-        f_donkey = new donkeyKong();
+        f_donkey = new donkeyKong(f_gameScreen);
         f_assetManager = new AssetManager();
         f_assetManager.load("zehahaha_laugh.mp3", Music.class);
         f_assetManager.finishLoading(); // Typically called in the loading screen logic
         f_assetManager.load("ADKLOOP.mp3", Music.class);
-        //f_assetManager.finishLoading();
-        //f_BGM = f_assetManager.get("ADKLOOP.mp3", Music.class);
-        //f_BGM.setVolume(0.3f);
-        //f_BGM.play();
-        //f_BGM.setLooping(true);
+        f_assetManager.finishLoading();
+        f_BGM = f_assetManager.get("ADKLOOP.mp3", Music.class);
+        f_BGM.setVolume(0.3f);
+        f_BGM.play();
+        f_BGM.setLooping(true);
         f_platforms = new ArrayList<>();
         f_powerUps = new ArrayList<>();
         f_platformsNoRender = new ArrayList<>();
@@ -139,14 +139,15 @@ public class MyGdxGame extends ApplicationAdapter {
         f_backgroundTexture = new Texture("background.png");
         f_UITexture = new Texture("UI.png");
         f_winUITexture = new Texture("WinUI.png");
-        f_gameOverTexture = new Texture("End UI.png");
+        f_gameOverTexture = new Texture("Lose UI.png");
         f_shieldTexture = new Texture("mario spriteS.png");
         f_lifeTexture = new Texture("mario sprite.png");
         initialize();
         playerWhip = new Whip(f_player.getPositionX(), f_player.getPositionY(), 50, 5, "whip1.png");
-        playershield = new Shield(f_player.getPositionX(), f_player.getPositionY(), 0, 0);
         f_blood = new BloodSplatter(0.1f, 1);
         f_blood2 = new BloodSplatter(0.1f, 2);
+        
+        playershield = new Shield(f_player.getPositionX(), f_player.getPositionY(), 0, 0);
        // playerWhip = new Whip(f_player.getPositionX(), f_player.getPositionY(), 50, 5, "whip1.png");
        
     }
@@ -162,7 +163,7 @@ public class MyGdxGame extends ApplicationAdapter {
         Texture ladderTexture = new Texture("ladder.png");
         
         barrel1Texture = new Texture("barrel1.png");
-        barrel2Texture = new Texture("barrel1.png");
+        barrel2Texture = new Texture("barrel2.png");
 
         // First row of platforms
         for(int i = 0; i <= 1200; i+= 100) {
@@ -200,81 +201,7 @@ public class MyGdxGame extends ApplicationAdapter {
         ladder4 = new Ladder(200, 700, 200, 150, ladderTexture);
         ladder5 = new Ladder(900, 900, 200, 150, ladderTexture);
         //ladder6 = new Ladder(200, 1100, 200, 150, ladderTexture);
-        powerUps1= new powerUps(500,100,100,100,1);
-        f_powerUps.add(powerUps1);
-        for(int i = 1; i<3;i++) {
-        	int yVal = 650, xVal = 500;
-        	int randomizer=(int)(Math.random()*5)+1;
-        	int powerBit = (int)(Math.random()*2)+1;
-        	if(randomizer==1) {
-        		yVal = 500;
-        		xVal = 300;
-        	}else if(randomizer==2) {
-        		yVal = 700;
-        		xVal = 1000;
-        	}else if(randomizer==3) {
-        		yVal = 900;
-        		xVal = 900;
-        	}else if(randomizer==4) {
-        		yVal = 300;
-        		xVal = 700;
-        	}else if(randomizer==5) {
-        		yVal = 500;
-        		xVal = 500;
-        	}
-        	//parameter corresponds to (x pos, y pos, width, height, texture aka power up)
-        	
-        if(yVal!=f_powerUps.get(f_powerUps.size()-1).getYPosition()&&xVal!=f_powerUps.get(f_powerUps.size()-1).getXPosition()) {
-        	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
-        	f_powerUps.add(new powerUps(xVal,yVal,100,100,powerBit));
-        	
-        	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-        	}else {
-        		powerBit = (int)(Math.random()*2)+1;
-        		i--;
-        	}
-        }else if(xVal!=f_powerUps.get(f_powerUps.size()-1).getXPosition()) {
-        	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
-            	f_powerUps.add(new powerUps(xVal,yVal+200,100,100,powerBit));
-            	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-            	}else {
-            		powerBit = (int)(Math.random()*2)+1;
-            		i--;
-            	}
-        	
-        	
-        	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-        	
-        }else if(yVal!=f_powerUps.get(f_powerUps.size()-1).getYPosition()) {
-        	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
-            
-            	f_powerUps.add(new powerUps(xVal+100,yVal,100,100,powerBit));
-            	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-            	}else {
-            		powerBit = (int)(Math.random()*2)+1;
-            		i--;
-            		
-            	}
-        	
-        	
-        	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-        	
-        }else  {
-        	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
-     
-            	f_powerUps.add(new powerUps(xVal+100,yVal+200,100,100,powerBit));
-            	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-            	}else {
-            		powerBit = (int)(Math.random()*2)+1;
-            		i--;
-            	}
-        	
-        	
-        	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
-        	
-        }
-        	
-        	}	
+       addPowerUps();
         
 
         //adding barrels
@@ -315,6 +242,7 @@ public class MyGdxGame extends ApplicationAdapter {
     	if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
       		 f_startGame = true;
       		 f_startBarrel = true;
+      		 f_donkey.start(true);
       	 }
     	 profiler.reset();
 
@@ -323,10 +251,9 @@ public class MyGdxGame extends ApplicationAdapter {
     	f_gameScreen.render(Gdx.graphics.getDeltaTime());
         clearScreen();
         f_player.update(Gdx.graphics.getDeltaTime());
-       
-        if(f_startGame) {
-            f_donkey.update(Gdx.graphics.getDeltaTime());
-           }
+       if(f_startGame) {
+        f_donkey.update(Gdx.graphics.getDeltaTime());
+       }
         playerWhip.update(Gdx.graphics.getDeltaTime());
         f_blood.update(Gdx.graphics.getDeltaTime());
         f_blood2.update(Gdx.graphics.getDeltaTime());
@@ -369,14 +296,16 @@ public class MyGdxGame extends ApplicationAdapter {
         updateBarrels();
         
         
+        
         renderWhip();
+        
         if (shield) {
         	playershield.update(Gdx.graphics.getDeltaTime());
         	playershield.setWEnd(f_endGame);
             playershield.setWWin(f_winUI);
             playershield.setWStart(shield = true);
         	renderShield();
-        	
+
         }
         
         f_player.draw(f_batch);
@@ -559,9 +488,9 @@ public class MyGdxGame extends ApplicationAdapter {
     }
     
     private void renderPowerUps() {
-    	for(powerUps powerUps1: f_powerUps) {
-    		powerUps1.update(Gdx.graphics.getDeltaTime());
-    		powerUps1.draw(f_batch);
+    	for(powerUps pUp: f_powerUps) {
+    		pUp.update(Gdx.graphics.getDeltaTime());
+    		pUp.draw(f_batch);
     	}
     		    	
     }
@@ -576,14 +505,15 @@ public class MyGdxGame extends ApplicationAdapter {
     	playerWhip.draw(f_batch);
     	
     }
-private void renderShield() {
-    	
-    	
+    
+    private void renderShield() {
+
+
     	f_ShieldX = f_player.getPositionX();
     	f_ShieldY = f_player.getPositionY();
     	playershield.getPlayerPosition(f_ShieldX, f_ShieldY); //send player's positions to Shield class
     	playershield.draw(f_batch);
-    	
+
     }
     
     private void updateBarrels() {
@@ -642,7 +572,7 @@ private void renderShield() {
                     Timer.schedule(new Task() {
                         @Override
                         public void run() {
-                          f_donkey.throwing(false);
+                            f_donkey.throwing(false);
                         }
                     }, 0.7f); // Delay in seconds after which to set throwing to false
                 }
@@ -663,7 +593,7 @@ private void renderShield() {
             	}
                  
             }
-        }, 10, 20 , 7); // Start delay (0 seconds), interval between spawns (20 seconds), number of repetitions (20)
+        }, 10, 8 , 20); // Start delay (0 seconds), interval between spawns (20 seconds), number of repetitions (20)
     }
     }
     public void scheduleBarrelSpawning3() {
@@ -695,6 +625,86 @@ private void renderShield() {
              // ... more as needed
          }
     }
+    
+    private void addPowerUps(){
+    	 powerUps1= new powerUps(500,100,100,100,1);
+         f_powerUps.add(powerUps1);
+         for(int i = 1; i<3;i++) {
+         	int yVal = 650, xVal = 500;
+         	int randomizer=(int)(Math.random()*5)+1;
+         	int powerBit = (int)(Math.random()*2)+1;
+         	if(randomizer==1) {
+         		yVal = 500;
+         		xVal = 300;
+         	}else if(randomizer==2) {
+         		yVal = 700;
+         		xVal = 1000;
+         	}else if(randomizer==3) {
+         		yVal = 900;
+         		xVal = 900;
+         	}else if(randomizer==4) {
+         		yVal = 300;
+         		xVal = 700;
+         	}else if(randomizer==5) {
+         		yVal = 500;
+         		xVal = 500;
+         	}
+         	//parameter corresponds to (x pos, y pos, width, height, texture aka power up)
+         	
+         if(yVal!=f_powerUps.get(f_powerUps.size()-1).getYPosition()&&xVal!=f_powerUps.get(f_powerUps.size()-1).getXPosition()) {
+         	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
+         	f_powerUps.add(new powerUps(xVal,yVal,100,100,powerBit));
+         	
+         	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+         	}else {
+         		powerBit = (int)(Math.random()*2)+1;
+         		i--;
+         	}
+         }else if(xVal!=f_powerUps.get(f_powerUps.size()-1).getXPosition()) {
+         	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
+             	f_powerUps.add(new powerUps(xVal,yVal+200,100,100,powerBit));
+             	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+             	}else {
+             		powerBit = (int)(Math.random()*2)+1;
+             		i--;
+             	}
+         	
+         	
+         	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+         	
+         }else if(yVal!=f_powerUps.get(f_powerUps.size()-1).getYPosition()) {
+         	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
+             
+             	f_powerUps.add(new powerUps(xVal+100,yVal,100,100,powerBit));
+             	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+             	}else {
+             		powerBit = (int)(Math.random()*2)+1;
+             		i--;
+             		
+             	}
+         	
+         	
+         	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+         	
+         }else  {
+         	if(f_powerUps.get(f_powerUps.size()-1).numReturn()!=powerBit) {
+      
+             	f_powerUps.add(new powerUps(xVal+100,yVal+200,100,100,powerBit));
+             	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+             	}else {
+             		powerBit = (int)(Math.random()*2)+1;
+             		i--;
+             	}
+         	
+         	
+         	System.out.println("Y val:\t"+f_powerUps.get(f_powerUps.size()-1).getYPosition());
+         	
+         }
+         	
+         	}	
+    }
+    
+
     private void checkWhipKongCollisions() {
         Rectangle whipBounds = playerWhip.getBounds();
         Rectangle kongBoundsRight = f_donkey.getBounds();
@@ -708,6 +718,7 @@ private void renderShield() {
 	            // You can handle the collision response here
 	            f_donkey.decreaseHealth();
 	            f_stopThrowing = true;
+	            
 
 	        }
         }
