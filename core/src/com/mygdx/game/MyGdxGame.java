@@ -1281,7 +1281,7 @@ public class MyGdxGame extends ApplicationAdapter {
     }
 
     
-    //Hunter work on this
+    //Used to check collions between player and power ups and to handle teleportation logic
     private void checkPowerUpCollisions() {
     	
     	for(powerUps power : f_powerUps) {
@@ -1366,7 +1366,7 @@ public class MyGdxGame extends ApplicationAdapter {
          
          GameUtils.saveGameState(gameState);
     }
-    private void lifeSys(int oldHP) {
+    private void lifeSys(int oldHP) { //Used to display player's remaining health and shields
     	 int spacer = 170;
          int oldHealth = oldHP;
      for(int i = 0;f_player.getHealth() >i; i++) {
@@ -1401,7 +1401,7 @@ public class MyGdxGame extends ApplicationAdapter {
      		}
      	}
      }
-    }
+    } //Method to change background music
     private void changeMusic(String newMusicFilename) {
         if (f_BGM != null) {
             f_BGM.stop(); // Stop current music
