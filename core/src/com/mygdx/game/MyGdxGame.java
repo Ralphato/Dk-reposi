@@ -1422,7 +1422,7 @@ public class MyGdxGame extends ApplicationAdapter {
  
     
     /**
-     * Disposes game resources.
+     * Disposes the different game resources.
      */
     @Override
     public void dispose() {
