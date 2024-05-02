@@ -644,7 +644,7 @@ public class MyGdxGame extends ApplicationAdapter {
          }
     }
     
-    private void addPowerUps(){
+    private void addPowerUps(){ // Adds the powerups to the screen using a randomizer
     	 powerUps1= new powerUps(500,100,100,100,1);
          f_powerUps.add(powerUps1);
          for(int i = 1; i<3;i++) {
@@ -723,7 +723,7 @@ public class MyGdxGame extends ApplicationAdapter {
     }
     
 
-    private void checkWhipKongCollisions() {
+    private void checkWhipKongCollisions() { //Checks the collion between the whip and donkey kong and update life status
         Rectangle whipBounds = playerWhip.getBounds();
         Rectangle kongBoundsRight = f_donkey.getBounds();
         Rectangle kongBoundsLeft = f_donkey.getBounds();
@@ -751,13 +751,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
         }
 
-        if(f_donkey.getHealth() <= 0) {
+        if(f_donkey.getHealth() <= 0) { //Varifies that the kong is Dead
         	System.out.println("DEADO");
         	f_winUI = true;
         }
     }
 
-    private void bloodSplatter() {
+    private void bloodSplatter() { //Donkey kong bleeds when touched by the whip
     	f_randomBlood = MathUtils.random(1, 2);
 
     	switch(f_randomBlood) {
